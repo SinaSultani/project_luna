@@ -7,7 +7,13 @@
  */
 
 import React from 'react';
-import type {Node} from 'react';
+import { Node } from 'react';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import SignInScreen from './screens/SignIn';
+import TermsScreen from './screens/Terms';
+import RegisterScreen from './screens/RegisterUser';
 import {
   SafeAreaView,
   ScrollView,
@@ -26,7 +32,75 @@ import {
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
 
-const Section = ({children, title}): Node => {
+const Tab = createBottomTabNavigator();
+const Stack = createStackNavigator();
+const SignInStack = createStackNavigator();
+const TermsStack = createStackNavigator();
+const RegisterStack = createStackNavigator();
+const BalanceStack = createStackNavigator();
+
+
+function HomeTab() {
+  return (
+    <Tab.Navigator
+    >
+      <Tab.Screen
+        name="Sign In"
+        options={{ headerShown: false }}
+        component={SignInStackScreen} />
+      <Tab.Screen
+        name="Register"
+        options={{ headerShown: false }}
+        component={RegisterStackScreen} />
+      <Tab.Screen
+        name="Terms"
+        options={{ headerShown: false }}
+        component={TermsStackScreen} />
+      {/* <Tab.Screen
+        name="Register"
+        component={RegisterUserStackScreen} />
+      <Tab.Screen
+        name="Balance"
+        component={BalanceStackScreen} /> */}
+    </Tab.Navigator>
+  )
+}
+
+function SignInStackScreen() {
+
+  return (
+    <SignInStack.Navigator>
+      <SignInStack.Screen
+        name="The Sign In"
+        options={{ headerShown: false }}
+        component={SignInScreen} />
+    </SignInStack.Navigator>
+  )
+}
+
+function TermsStackScreen() {
+  return (
+    <TermsStack.Navigator>
+      <TermsStack.Screen
+        name="The Terms"
+        options={{ headerShown: false }}
+        component={TermsScreen} />
+    </TermsStack.Navigator>
+  )
+}
+
+function RegisterStackScreen() {
+  return (
+    <RegisterStack.Navigator>
+      <RegisterStack.Screen
+        name="Another Register"
+        options={{ headerShown: false }}
+        component={RegisterScreen} />
+    </RegisterStack.Navigator>
+  )
+}
+
+const Section = ({ children, title }) => {
   const isDarkMode = useColorScheme() === 'dark';
   return (
     <View style={styles.sectionContainer}>
@@ -52,7 +126,7 @@ const Section = ({children, title}): Node => {
   );
 };
 
-const App: () => Node = () => {
+const App = () => {
   const isDarkMode = useColorScheme() === 'dark';
 
   const backgroundStyle = {
@@ -60,33 +134,18 @@ const App: () => Node = () => {
   };
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.js</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Group screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="HomeTab" component={HomeTab} />
+        </Stack.Group>
+        <Stack.Group screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="Sign In" component={SignInStackScreen} />
+          <Stack.Screen name="Terms" component={TermsStackScreen} />
+          <Stack.Screen name="Register" component={RegisterStackScreen} />
+        </Stack.Group>
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 };
 
