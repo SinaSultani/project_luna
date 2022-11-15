@@ -7,8 +7,12 @@
  */
 
 import React from 'react';
-import type {Node} from 'react';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+
 import {
+  Button,
   SafeAreaView,
   ScrollView,
   StatusBar,
@@ -18,75 +22,129 @@ import {
   View,
 } from 'react-native';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+import SignIn from './screens/SignIn';
+import Profile from './screens/Profile';
+import Balance from './screens/Balance';
+import Terms from './screens/Terms';
+import TopUp from './screens/TopUp';
+import CompleteTopUp from './screens/CompleteTopUp';
+ 
+const Tab = createBottomTabNavigator(); // for bottom navigation
 
-const Section = ({children, title}): Node => {
-  const isDarkMode = useColorScheme() === 'dark';
+const Stack = createStackNavigator();
+const SignInStack = createStackNavigator();
+const ProfileStack = createStackNavigator();
+const BalanceStack = createStackNavigator();
+const TermsStack = createStackNavigator();
+
+
+const HomeTab = () => {
   return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
+    <Tab.Navigator screenOptions={{ headerShown: false }}>
+       <Tab.Screen
+        name="SignIn"
+        component={SignInStackScreen}
+      />
+       <Tab.Screen
+        name="Profile"
+        component={ProfileStackScreen}
+      />
+       <Tab.Screen
+        name="Balance"
+        component={BalanceStackScreen}
+      />
+     <Tab.Screen
+        name="Terms"
+        component={TermsStackScreen}
+      />
+    </Tab.Navigator>
+  )
+}
+
+function SignInStackScreen() {
+  return (
+    <SignInStack.Navigator>
+      <SignInStack.Screen 
+        name="Sign In"
+        component={SignIn}
+      />
+    </SignInStack.Navigator>
   );
 };
 
-const App: () => Node = () => {
+function ProfileStackScreen() {
+  return (
+    <ProfileStack.Navigator>
+      <ProfileStack.Screen
+        name="Your Profile"
+        component={Profile}
+      />
+    </ProfileStack.Navigator>
+  );
+};
+
+function BalanceStackScreen() {
+  return (
+    <BalanceStack.Navigator>
+      <BalanceStack.Screen 
+        name="Your Balance"
+        component={Balance}
+      />
+      <BalanceStack.Screen
+        name= "TopUp"
+        component={TopUp}
+      />
+      <BalanceStack.Screen
+        name= "CompleteTopUp"
+        component={CompleteTopUp}
+      />
+    </BalanceStack.Navigator>
+  );
+};
+
+function TermsStackScreen() {
+  return (
+    <TermsStack.Navigator>
+      <TermsStack.Screen 
+        name="The Terms!"
+        component={Terms}
+      />
+    </TermsStack.Navigator>
+  );
+};
+
+
+
+
+const App = ( {navigation} ) => {
   const isDarkMode = useColorScheme() === 'dark';
 
   const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+    backgroundColor: "salmon",
+    height: 20,
+    
   };
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.js</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+
+    <NavigationContainer>
+      <Stack.Navigator>
+        
+        <Stack.Group screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="HomeTab" component={HomeTab} />
+        </Stack.Group>
+
+        <Stack.Group screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="Your Balance" component={BalanceStackScreen} />
+            <Stack.Screen name="Main" component={SignInStackScreen} />
+            <Stack.Screen name="Your Profile" component={ProfileStackScreen} />
+            <Stack.Screen  name="Terms of use" component={TermsStackScreen} />
+            <Stack.Screen name="Top Up" component={BalanceStackScreen}/>
+          </Stack.Group>
+
+      </Stack.Navigator>
+    </NavigationContainer>
+     
   );
 };
 
