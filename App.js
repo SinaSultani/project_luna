@@ -28,6 +28,7 @@ import Balance from './screens/Balance';
 import Terms from './screens/Terms';
 import TopUp from './screens/TopUp';
 import CompleteTopUp from './screens/CompleteTopUp';
+import TermsComplete from './screens/TermsComplete';
  
 const Tab = createBottomTabNavigator(); // for bottom navigation
 
@@ -104,10 +105,15 @@ function BalanceStackScreen() {
 
 function TermsStackScreen() {
   return (
-    <TermsStack.Navigator>
+    <TermsStack.Navigator
+    screenOptions={{ headerShown: false }}>
       <TermsStack.Screen 
-        name="The Terms!"
+        name="The Terms"
         component={Terms}
+      />
+      <TermsStack.Screen 
+        name="TermsComplete"
+        component={TermsComplete}
       />
     </TermsStack.Navigator>
   );
@@ -139,7 +145,7 @@ const App = ( {navigation} ) => {
             <Stack.Screen name="Main" component={SignInStackScreen} />
             <Stack.Screen name="Your Profile" component={ProfileStackScreen} />
             <Stack.Screen  name="Terms of use" component={TermsStackScreen} />
-            <Stack.Screen name="Top Up" component={BalanceStackScreen}/>
+            <Stack.Screen  name="Top Up" component={BalanceStackScreen}/>
           </Stack.Group>
 
       </Stack.Navigator>
