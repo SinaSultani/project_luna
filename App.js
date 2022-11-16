@@ -14,6 +14,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import SignInScreen from './screens/SignIn';
 import TermsScreen from './screens/Terms';
 import RegisterScreen from './screens/RegisterUser';
+import ProfileScreen from './screens/Profile';
 import {
   SafeAreaView,
   ScrollView,
@@ -38,9 +39,10 @@ const SignInStack = createStackNavigator();
 const TermsStack = createStackNavigator();
 const RegisterStack = createStackNavigator();
 const BalanceStack = createStackNavigator();
+const ProfileStack = createStackNavigator();
 
 
-function HomeTab() {
+function HomeTab({ navi }) {
   return (
     <Tab.Navigator
     >
@@ -56,12 +58,6 @@ function HomeTab() {
         name="Terms"
         options={{ headerShown: false }}
         component={TermsStackScreen} />
-      {/* <Tab.Screen
-        name="Register"
-        component={RegisterUserStackScreen} />
-      <Tab.Screen
-        name="Balance"
-        component={BalanceStackScreen} /> */}
     </Tab.Navigator>
   )
 }
@@ -74,9 +70,26 @@ function SignInStackScreen() {
         name="The Sign In"
         options={{ headerShown: false }}
         component={SignInScreen} />
+      <SignInStack.Screen
+        name="The Profile"
+        options={{ headerShown: false }}
+        component={ProfileScreen} />
     </SignInStack.Navigator>
+
   )
 }
+function ProfileStackScreen() {
+
+  return (
+    <ProfileStack.Navigator>
+      <ProfileStack.Screen
+        name="The Profile"
+        options={{ headerShown: false }}
+        component={ProfileScreen} />
+    </ProfileStack.Navigator>
+  )
+}
+
 
 function TermsStackScreen() {
   return (
@@ -126,7 +139,7 @@ const Section = ({ children, title }) => {
   );
 };
 
-const App = () => {
+const App = ({ navigation }) => {
   const isDarkMode = useColorScheme() === 'dark';
 
   const backgroundStyle = {

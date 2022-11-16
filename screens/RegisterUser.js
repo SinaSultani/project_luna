@@ -4,11 +4,11 @@ import {
     Text,
     View,
     Image,
-    TextInput,
-    Button,
     TouchableOpacity,
 } from "react-native";
-
+import { TextInput, Button, Paragraph, Dialog, Portal } from 'react-native-paper';
+import firebase from '@react-native-firebase/app';
+import getAuth from '@react-native-firebase/auth';
 
 const Register = () => {
     const [firstName, setFirstName] = useState('');
@@ -16,6 +16,26 @@ const Register = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+
+
+
+    const createUser = async () => {
+        try {
+            console.log("email and password: ", email, password)
+            //const { user } = await auth().createUserWithEmailAndPassword(email, password);
+            const auth = getAuth().currentUser;
+            // await sendEmailVerification();
+            // const update = {
+            //     displayName: firstName + " " + lastName
+            // }
+            // await auth.currentUser.updateProfile(update);
+            console.log("THE auth: ", auth);
+            // console.log("Did we update: ", update)
+        } catch (err) {
+            console.log("NOPE, NOT CREATED")
+        }
+    }
+
     return (
         <View style={styles.container}>
             <Image style={styles.image} source={require("../assets/bosi-logo.png")} />
@@ -24,6 +44,7 @@ const Register = () => {
                     style={styles.TextInput}
                     placeholder="First name."
                     placeholderTextColor="#003f5c"
+                    value={firstName}
                     onChangeText={(firstName) => setFirstName(firstName)}
                 />
             </View>
@@ -32,6 +53,7 @@ const Register = () => {
                     style={styles.TextInput}
                     placeholder="Last name."
                     placeholderTextColor="#003f5c"
+                    value={lastName}
                     onChangeText={(lastName) => setLastName(lastName)}
                 />
             </View>
@@ -40,6 +62,7 @@ const Register = () => {
                     style={styles.TextInput}
                     placeholder="Email."
                     placeholderTextColor="#003f5c"
+                    value={email}
                     onChangeText={(email) => setEmail(email)}
                 />
             </View>
@@ -50,7 +73,8 @@ const Register = () => {
                     placeholder="Password."
                     placeholderTextColor="#003f5c"
                     secureTextEntry={true}
-                    onChangeText={(confirmPassword) => setConfirmPassword(confirmPassword)}
+                    value={password}
+                    onChangeText={(password) => setPassword(password)}
                 />
             </View>
             <View style={styles.inputView}>
@@ -59,13 +83,15 @@ const Register = () => {
                     placeholder="Confirm Password."
                     placeholderTextColor="#003f5c"
                     secureTextEntry={true}
-                    onChangeText={(password) => setPassword(password)}
+                    value={confirmPassword}
+                    onChangeText={(confirmPassword) => setConfirmPassword(confirmPassword)}
                 />
             </View>
 
-            <TouchableOpacity style={styles.loginBtn}>
-                <Text style={styles.loginText}>Register</Text>
-            </TouchableOpacity>
+            <Button style={styles.loginBtn}
+                onPress={createUser}>
+                Register
+            </Button>
         </View>
     )
 }
@@ -108,7 +134,7 @@ const styles = StyleSheet.create({
     },
 
     loginBtn: {
-        width: "20%",
+        width: "50%",
         borderRadius: 25,
         height: 50,
         alignItems: "center",

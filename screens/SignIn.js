@@ -4,46 +4,74 @@ import {
     Text,
     View,
     Image,
-    TextInput,
-    Button,
     TouchableOpacity,
 } from "react-native";
+import { TextInput, Button, Paragraph, Dialog, Portal } from 'react-native-paper';
+import firebase from '@react-native-firebase/app';
+import auth from '@react-native-firebase/auth';
+import getAuth from '@react-native-firebase/auth';
+import Profile from "./Profile";
 
-
-const SignIn = () => {
+const SignIn = ({ navigation }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const currentAuth = getAuth().currentUser;
+    console.log("currentAuth: ", currentAuth)
+    const signIn = async () => {
+        try {
+            const { user } = await auth().signInWithEmailAndPassword(email, password);
+            console.log("the signed in user: ", user)
+            navigation.navigate('The Profile')
+        } catch (err) {
+            console.log("Not signed in")
+        }
+    }
 
+    // const signOut = async () => {
+    //     try {
+    //         await auth()
+    //             .signOut()
+    //             .then(() => console.log('User signed out!'));
+    //         navigation.navigate('Sign In')
+    //     } catch (err) {
+    //         console.log("DID NOT SIGN OUT")
+    //     }
+    // }
     return (
-        <View style={styles.container}>
-            <Image style={styles.image} source={require("../assets/bosi-logo.png")} />
-            <View style={styles.inputView}>
-                <TextInput
-                    style={styles.TextInput}
-                    placeholder="Email."
-                    placeholderTextColor="#003f5c"
-                    onChangeText={(email) => setEmail(email)}
-                />
-            </View>
+        <>
+            {!currentAuth ?
+                <View style={styles.container}>
+                    <Image style={styles.image} source={require("../assets/bosi-logo.png")} />
+                    <View style={styles.inputView}>
+                        <TextInput
+                            style={styles.TextInput}
+                            placeholder="Email."
+                            placeholderTextColor="#003f5c"
+                            onChangeText={(email) => setEmail(email)}
+                        />
+                    </View>
 
-            <View style={styles.inputView}>
-                <TextInput
-                    style={styles.TextInput}
-                    placeholder="Password."
-                    placeholderTextColor="#003f5c"
-                    secureTextEntry={true}
-                    onChangeText={(password) => setPassword(password)}
-                />
-            </View>
+                    <View style={styles.inputView}>
+                        <TextInput
+                            style={styles.TextInput}
+                            placeholder="Password."
+                            placeholderTextColor="#003f5c"
+                            secureTextEntry={true}
+                            onChangeText={(password) => setPassword(password)}
+                        />
+                    </View>
 
-            <TouchableOpacity>
-                <Text style={styles.forgot_button}>Forgot Password?</Text>
-            </TouchableOpacity>
+                    <TouchableOpacity>
+                        <Text style={styles.forgot_button}>Forgot Password?</Text>
+                    </TouchableOpacity>
 
-            <TouchableOpacity style={styles.loginBtn}>
-                <Text style={styles.loginText}>LOGIN</Text>
-            </TouchableOpacity>
-        </View>
+                    <Button style={styles.loginBtn}
+                        onPress={signIn}>
+                        Login
+                    </Button>
+                </View> : <Profile />
+            }
+        </>
     )
 }
 

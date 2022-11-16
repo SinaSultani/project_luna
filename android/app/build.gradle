@@ -1,7 +1,12 @@
 import com.android.build.OutputFile
 
+// project.ext.envConfigFiles = [
+//   bosi: ".env.bosi"
+// ];
+
 apply plugin: "com.android.application"
 apply plugin: "com.google.gms.google-services"
+//apply from: project(":react-native-config").projectDir.getPath() + "/dotenv.gradle"
 
 
 
@@ -139,6 +144,7 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
+        //resValue "string", "build_config_package", "com.myapp"
     }
     splits {
         abi {
@@ -188,6 +194,8 @@ android {
 
 dependencies {
         implementation platform('com.google.firebase:firebase-bom:31.0.3')
+        implementation 'com.google.firebase:firebase-auth'
+        implementation 'com.google.android.gms:play-services-auth:20.3.0'
     implementation fileTree(dir: "libs", include: ["*.jar"])
     //noinspection GradleDynamicVersion
     implementation "com.facebook.react:react-native:+"  // From node_modules
