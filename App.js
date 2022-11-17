@@ -23,18 +23,18 @@ import {
 } from 'react-native';
 
 import SignIn from './screens/SignIn';
-import Profile from './screens/Profile';
+import RegisterUser from './screens/RegisterUser';
 import Balance from './screens/Balance';
 import Terms from './screens/Terms';
 import TopUp from './screens/TopUp';
 import CompleteTopUp from './screens/CompleteTopUp';
 import TermsComplete from './screens/TermsComplete';
+import Profile from './screens/Profile';
  
 const Tab = createBottomTabNavigator(); // for bottom navigation
 
 const Stack = createStackNavigator();
-const SignInStack = createStackNavigator();
-const ProfileStack = createStackNavigator();
+const RegisterStack = createStackNavigator();
 const BalanceStack = createStackNavigator();
 const TermsStack = createStackNavigator();
 
@@ -43,12 +43,8 @@ const HomeTab = () => {
   return (
     <Tab.Navigator screenOptions={{ headerShown: false }}>
        <Tab.Screen
-        name="SignIn"
-        component={SignInStackScreen}
-      />
-       <Tab.Screen
-        name="Profile"
-        component={ProfileStackScreen}
+        name="Sign Up/In"
+        component={RegisterStackScreen}
       />
        <Tab.Screen
         name="Balance"
@@ -62,25 +58,28 @@ const HomeTab = () => {
   )
 }
 
-function SignInStackScreen() {
+
+function RegisterStackScreen() {
   return (
-    <SignInStack.Navigator>
-      <SignInStack.Screen 
+    <RegisterStack.Navigator
+    screenOptions={{ headerShown: false }}
+    >
+      <RegisterStack.Screen
+        screenOptions={{ headerShown: false }}
+        name="Register & Sign in"
+        component={RegisterUser}
+      />
+       <RegisterStack.Screen 
+        screenOptions={{ headerShown: false }}
         name="Sign In"
         component={SignIn}
       />
-    </SignInStack.Navigator>
-  );
-};
-
-function ProfileStackScreen() {
-  return (
-    <ProfileStack.Navigator>
-      <ProfileStack.Screen
-        name="Your Profile"
+       <RegisterStack.Screen 
+        screenOptions={{ headerShown: false }}
+        name="Profile"
         component={Profile}
       />
-    </ProfileStack.Navigator>
+    </RegisterStack.Navigator>
   );
 };
 
@@ -142,8 +141,8 @@ const App = ( {navigation} ) => {
 
         <Stack.Group screenOptions={{ headerShown: false }}>
             <Stack.Screen name="Your Balance" component={BalanceStackScreen} />
-            <Stack.Screen name="Main" component={SignInStackScreen} />
-            <Stack.Screen name="Your Profile" component={ProfileStackScreen} />
+            <Stack.Screen name="Main" component={RegisterStackScreen} />
+            {/* <Stack.Screen name="Your Profile" component={ProfileStackScreen} /> */}
             <Stack.Screen  name="Terms of use" component={TermsStackScreen} />
             <Stack.Screen  name="Top Up" component={BalanceStackScreen}/>
           </Stack.Group>
