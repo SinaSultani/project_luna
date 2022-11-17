@@ -15,6 +15,7 @@ import SignInScreen from './screens/SignIn';
 import TermsScreen from './screens/Terms';
 import RegisterScreen from './screens/RegisterUser';
 import ProfileScreen from './screens/Profile';
+import UserProvider from './context/UserProvider';
 import {
   SafeAreaView,
   ScrollView,
@@ -139,7 +140,10 @@ const Section = ({ children, title }) => {
   );
 };
 
+
 const App = ({ navigation }) => {
+
+
   const isDarkMode = useColorScheme() === 'dark';
 
   const backgroundStyle = {
@@ -147,19 +151,23 @@ const App = ({ navigation }) => {
   };
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Group screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="HomeTab" component={HomeTab} />
-        </Stack.Group>
-        <Stack.Group screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="Sign In" component={SignInStackScreen} />
-          <Stack.Screen name="Terms" component={TermsStackScreen} />
-          <Stack.Screen name="Register" component={RegisterStackScreen} />
-        </Stack.Group>
-      </Stack.Navigator>
-    </NavigationContainer>
+    <UserProvider>
+      <NavigationContainer>
+        <Stack.Navigator>
+          <Stack.Group screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="HomeTab" component={HomeTab} />
+          </Stack.Group>
+          <Stack.Group screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="Sign In" component={SignInStackScreen} />
+            <Stack.Screen name="Terms" component={TermsStackScreen} />
+            <Stack.Screen name="Register" component={RegisterStackScreen} />
+          </Stack.Group>
+        </Stack.Navigator>
+      </NavigationContainer>
+    </UserProvider>
   );
+
+
 };
 
 const styles = StyleSheet.create({

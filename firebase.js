@@ -26,4 +26,4 @@ const sendEmailVerification = async () => {
     }
 };
 
-export { firebase, auth, signIn, createUser }
+export { firebase, auth }

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
     StyleSheet,
     Text,
@@ -11,68 +11,84 @@ import firebase from '@react-native-firebase/app';
 import auth from '@react-native-firebase/auth';
 import getAuth from '@react-native-firebase/auth';
 import Profile from "./Profile";
+// import { UserProvider } from "../context/UserProvider";
+import { UserContext } from '../context/UserProvider';
+
+
 
 const SignIn = ({ navigation }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const currentAuth = getAuth().currentUser;
-    console.log("currentAuth: ", currentAuth)
-    const signIn = async () => {
-        try {
-            const { user } = await auth().signInWithEmailAndPassword(email, password);
-            console.log("the signed in user: ", user)
-            navigation.navigate('The Profile')
-        } catch (err) {
-            console.log("Not signed in")
-        }
-    }
+    // // Set an initializing state whilst Firebase connects
+    // const [initializing, setInitializing] = useState(true);
+    // const [user, setUser] = useState();
 
-    // const signOut = async () => {
+    const { signInUser } = useContext(UserContext);
+    console.log("signInUser: ", signInUser)
+    // const currentAuth = getAuth().currentUser;
+
+
+    // Handle user state changes
+    // function onAuthStateChanged(user) {
+    //     setUser(user);
+    //     if (initializing) setInitializing(false);
+    // }
+
+    // useEffect(async () => {
+    //     const subscriber = await auth().onAuthStateChanged(onAuthStateChanged);
+    //     return subscriber; // unsubscribe on unmount
+    // }, []);
+
+    // if (initializing) return <Text>NULL</Text>;
+
+    // const signIn = async () => {
     //     try {
-    //         await auth()
-    //             .signOut()
-    //             .then(() => console.log('User signed out!'));
-    //         navigation.navigate('Sign In')
+    //         const { user } = await auth().signInWithEmailAndPassword(email, password);
+    //         navigation.navigate('The Profile')
     //     } catch (err) {
-    //         console.log("DID NOT SIGN OUT")
+    //         console.log("Not signed in")
     //     }
     // }
+
     return (
         <>
-            {!currentAuth ?
-                <View style={styles.container}>
-                    <Image style={styles.image} source={require("../assets/bosi-logo.png")} />
-                    <View style={styles.inputView}>
-                        <TextInput
-                            style={styles.TextInput}
-                            placeholder="Email."
-                            placeholderTextColor="#003f5c"
-                            onChangeText={(email) => setEmail(email)}
-                        />
-                    </View>
+            <View style={styles.container}>
+                <Image style={styles.image} source={require("../assets/bosi-logo.png")} />
+                <View style={styles.inputView}>
+                    <TextInput
+                        style={styles.TextInput}
+                        placeholder="Email."
+                        placeholderTextColor="#003f5c"
+                        onChangeText={(email) => setEmail(email)}
+                    />
+                </View>
+                <View style={styles.inputView}>
+                    <TextInput
+                        style={styles.TextInput}
+                        placeholder="Password."
+                        placeholderTextColor="#003f5c"
+                        secureTextEntry={true}
+                        onChangeText={(password) => setPassword(password)}
+                    />
+                </View>
+                <TouchableOpacity>
+                    <Text style={styles.forgot_button}>Forgot Password?</Text>
+                </TouchableOpacity>
 
-                    <View style={styles.inputView}>
-                        <TextInput
-                            style={styles.TextInput}
-                            placeholder="Password."
-                            placeholderTextColor="#003f5c"
-                            secureTextEntry={true}
-                            onChangeText={(password) => setPassword(password)}
-                        />
-                    </View>
-
-                    <TouchableOpacity>
-                        <Text style={styles.forgot_button}>Forgot Password?</Text>
-                    </TouchableOpacity>
-
-                    <Button style={styles.loginBtn}
-                        onPress={signIn}>
-                        Login
-                    </Button>
-                </View> : <Profile />
-            }
+                <Button style={styles.loginBtn}
+                    onPress={() => signInUser(email, password)}>
+                    Login
+                </Button>
+            </View>
         </>
     )
+
+
+    return (
+        <Profile />
+    )
+
+
 }
 
 const styles = StyleSheet.create({

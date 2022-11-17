@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
     StyleSheet,
     Text,
@@ -9,32 +9,41 @@ import {
 import { TextInput, Button, Paragraph, Dialog, Portal } from 'react-native-paper';
 import getAuth from '@react-native-firebase/auth';
 import auth from '@react-native-firebase/auth';
+import SignIn from "./SignIn";
 // import SignOut from "../components/SignOut";
 // import signOut from "../components/SignOut";
+//import SignIn from "./SignIn";
 
-const Profile = ({ navigation }) => {
-
+const Profile = ({ navigation, user }) => {
 
     const signOut = async () => {
 
         try {
             await auth()
                 .signOut()
-                .then(() => navigation.navigate('The Sign In'));
-            console.log("COMPLETE!")
+                .then(() => console.log("COMPLETE!"));
+
         } catch (err) {
             console.log("DID NOT SIGN OUT")
         }
     }
+    const currentAuth = auth().onAuthStateChanged;
+    // const currentAuth = getAuth().currentUser;
+    // console.log("currentAuth: ", currentAuth)
+    //USER ÄR TOM HÄR OM INTE SIGN IN SKICKAT IN DATA. VI MÅSTE KOLLA PÅ onAuthStateChanged om användaren är inloggad eller inte, om den inte är det, navigera till Sign In
+    if (!currentAuth) {
+        return (
+            navigation.navigate('Sign In')
+        )
+    }
 
-    const currentAuth = getAuth().currentUser;
     return (
         <View style={styles.container}>
             <View style={styles.header}></View>
             <Image style={styles.avatar} source={{ uri: 'https://bootdey.com/img/Content/avatar/avatar6.png' }} />
             <View style={styles.body}>
                 <View>
-                    <Text style={styles.name}>{currentAuth.email}</Text>
+                    <Text style={styles.name}>{user.email}</Text>
                     <Text style={styles.info}>UX Designer / Mobile developer</Text>
                     <Text style={styles.description}>Lorem ipsum dolor sit amet, saepe sapientem eu nam. Qui ne assum electram expetendis, omittam deseruisse consequuntur ius an,</Text>
                     <TouchableOpacity style={styles.buttonContainer}>
@@ -50,7 +59,7 @@ const Profile = ({ navigation }) => {
                 </Button>
             </View>
         </View>
-    )
+    );
 }
 
 const styles = StyleSheet.create({
