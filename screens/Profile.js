@@ -1,35 +1,57 @@
-import React from 'react';
-import { ListViewBase, ListViewComponent, SafeAreaView, Text, View, FlatList, StyleSheet, StatusBar} from "react-native"
+import React, { useState} from 'react';
+import { SafeAreaView, View, Button, StyleSheet, TextInput, StatusBar} from "react-native"
+import firebase from '@react-native-firebase/app';
+import { getAuth } from '@react-native-firebase/auth';
+import auth from '@react-native-firebase/auth';
 
-
-
-
-
-const data = [{ key: 1, title:"Boris"}, {key:2, title:"Sina"}, {key:3, title:"Pontus"}]
-
-const Item = ({ title }) => (
-    <View style={styles.item}>
-      <Text style={styles.title}>{title}</Text>
-    </View>
-  );
 
 const Profile = () => {
+  
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  
+  // const auth = getAuth().currentUser;
+  
+  const createUser = async () => {
+    try {
+        console.log("email and password: ", email, password)
+        const { user } = await auth().createUserWithEmailAndPassword(email, password);
+        console.log("THE CREATED USER: ", user)
+        // await sendEmailVerification();
+        // console.log("THE CREATED USER: ", user);
+    } catch (err) {
+        console.log("NOPE, NOT CREATED")
+    }
 
-    const renderItem = ({ item }) => (
-        <Item title={item.title} />
-    );
+  }
+
+  
+
 
     return (
         <SafeAreaView style={{ flex: 1}}>
-            <View style={{ height: 350 }}>
-                <Text style={{ color: "red", fontSize: 30, }}>
-                   Users:
-                </Text>
-                <FlatList 
-            data={data}
-            renderItem={renderItem}
-            keyExtractor={item => item.key}
+            <View style={styles.inputView}> 
+            <TextInput
+                style={styles.TextInput}
+                placeholder="Email."
+                placeholderTextColor="#003f5c"
+                value={email}
+                onChangeText={(email) => setEmail(email)}
             />
+            <TextInput
+                placeholder="Password."
+                placeholderTextColor="#003f5c"
+                secureTextEntry={true}
+                value={password}
+                onChangeText={(password) => setPassword(password)}
+            />
+            <Button 
+              title="Register"
+              onPress={createUser}>
+            </Button>
+            <Text style={{}}>
+                No profile? Register Here.
+            </Text>
             </View>
         </SafeAreaView>
     )

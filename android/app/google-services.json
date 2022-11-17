@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "462327531953",
+    "project_id": "bosi-e158f",
+    "storage_bucket": "bosi-e158f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:462327531953:android:8795848fc3150161439590",
+        "android_client_info": {
+          "package_name": "com.project_luna"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "462327531953-v6ijcn817gfr0362lm8u4b8qk4trmcqe.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAZMHHxN73RhHDeh9TeXSes5KJdmDxWRlo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "462327531953-v6ijcn817gfr0362lm8u4b8qk4trmcqe.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
