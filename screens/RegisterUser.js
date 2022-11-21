@@ -1,30 +1,51 @@
-import React, { useState} from 'react';
+import React, { useState, useContext, useEffect, useCallback } from 'react';
 import { SafeAreaView, View, Button, StyleSheet, TextInput, StatusBar, Text, Image} from "react-native"
 import firebase from '@react-native-firebase/app';
 import { getAuth } from '@react-native-firebase/auth';
 import auth from '@react-native-firebase/auth';
+import { UserContext } from '../providers/UserProvider';
+import { doc, setDoc } from '@react-native-firebase/firestore'
+import { FirestoreUsersContext } from '../providers/FirestoreUsersProvider';
+import firestore from '@react-native-firebase/firestore'
 
 
 const RegisterUser = ( { navigation} ) => {
-  
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  
-  // const auth = getAuth().currentUser;
-  
-  const createUser = async () => {
-    try {
-        console.log("email and password: ", email, password)
-        const { user } = await auth().createUserWithEmailAndPassword(email, password);
-        console.log("THE CREATED USER: ", user)
-        // await sendEmailVerification();
-        // console.log("THE CREATED USER: ", user);
-    } catch (err) {
-        console.log("NOPE, NOT CREATED")
-    }
-  }
 
-    return (
+const [ registered, setRegistered ] = useState(false)
+
+const { email, setEmail, password, setPassword } = useContext(UserContext)
+
+// useCallback(() => {
+//     updateFirestore()
+//     console.log("updated firestore")
+// }, [registered])
+
+const updateFirestore = useCallback(() => {
+    firestore().collection('users')
+    .add({
+         email: email
+     })
+     .then((email) => console.log(email))
+ }, [registered])
+ 
+
+const createUser = async () => {
+try {
+    console.log("email and password: ", email, password)
+    const { user } = await auth().createUserWithEmailAndPassword(email, password);
+    setRegistered(true);
+    console.log("THE CREATED USER: ", user)
+   
+    navigation.navigate('Profile');
+
+} catch (err) {
+    console.log("NOPE, NOT CREATED")
+}
+}
+
+
+
+return (
         <SafeAreaView style={styles.container}>
             <View style={styles.inputView}>
             <Image style={styles.image} source={require("../assets/bosi-logo.png")} />
@@ -48,7 +69,7 @@ const RegisterUser = ( { navigation} ) => {
                 />
                 <Button
                     title="Register"
-                    onPress={createUser}>
+                    onPress={() => {createUser(); updateFirestore() }}>
                 </Button>
             </View>
             <View style={{marginTop: 20, alignSelf: "center", alignItems: "center"}}>

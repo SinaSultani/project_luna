@@ -1,15 +1,25 @@
-import React , {useEffect, useState} from 'react';
+import React , {useCallback, useEffect, useState, useContext} from 'react';
 import { SafeAreaView, Text, View, Image, StyleSheet, Button, TextInput, Alert} from "react-native"
 import auth from '@react-native-firebase/auth';
+import { UserContext } from '../providers/UserProvider';
+import { FirestoreUsersContext } from '../providers/FirestoreUsersProvider';
 
-const SignIn = ({ navigation }) => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+
+import firestore from '@react-native-firebase/firestore';
+
+
+export const SignIn = ({ navigation }) => {
     const [ logIn, setLogIn ] = useState(false)
     const [ initializing, setInitializing ] = useState(true)
-    const [ user, setUser ] = useState({});
+    const { email, setEmail, password, setPassword, user, setUser, setLoggedIn } = useContext(UserContext)
+    const { users } = useContext(FirestoreUsersContext)
+    console.log("init", initializing)
+    console.log(user)
+    
+    
+    // const users = await firestore().collection('users').get();
 
-    console.log("user is", user)
+    console.log(users)
 
     const onAuthStateChanged = (user) => {
         setUser(user);
@@ -31,8 +41,8 @@ const SignIn = ({ navigation }) => {
         console.log("the signed in user: ", user)
         onAuthStateChanged(user)
         navigation.navigate('Profile');
-        setLogIn(true)
-        resetLogIn();
+        setLoggedIn(true)
+   
      
         // navigation.navigate('The Profile')
     } catch (err) {
@@ -40,60 +50,40 @@ const SignIn = ({ navigation }) => {
     }
   }
 
-    const resetLogIn = () => {
-        if(logIn) {
-            setTimeout(() => {
-                setEmail("")
-                setPassword("")
-                }, 2000) 
-        }
-    }
-
-    // if (!user) {
-    //     return (
-    //       <View>
-    //          <Button
-    //             title="Sign In"
-    //             onPress={signIn}>
-    //         </Button>
-    //       </View>
-    //     );
-    // }
-
-
-
     return (
-        <SafeAreaView style={styles.container}>
-            <View style={{width: "60%", alignContent: "center", alignSelf: "center"}}>
-            <Image style={styles.image} source={require("../assets/bosi-logo.png")} />
-                <Text style={{ color: "#099556", fontSize: 30, textAlign: "center", marginBottom: 30 }}>
-                    Welcome!
-                </Text>
-                <TextInput
-                    style={styles.textInput}
-                    placeholder="email"
-                    placeholderTextColor="#003f5c"
-                    value={email}
-                    onChangeText={(email) => setEmail(email)}
-                />
-                <TextInput
-                    style={styles.textInput}
-                    placeholder="password"
-                    placeholderTextColor="#003f5c"
-                    secureTextEntry={true}
-                    value={password}
-                    onChangeText={(password) => setPassword(password)}
-                />
-                <Button
-                    title="Sign In"
-                    onPress={signIn}>
-                </Button>
-                <Text
-                    style={styles.signIn}
-                    onPress={() => navigation.navigate('Register & Sign in')}
-                > Register here </Text>
-            </View>
-        </SafeAreaView>
+      
+            <SafeAreaView style={styles.container}>
+                <View style={{width: "60%", alignContent: "center", alignSelf: "center"}}>
+                <Image style={styles.image} source={require("../assets/bosi-logo.png")} />
+                    <Text style={{ color: "#099556", fontSize: 30, textAlign: "center", marginBottom: 30 }}>
+                        Welcome!
+                    </Text>
+                    <TextInput
+                        style={styles.textInput}
+                        placeholder="email"
+                        placeholderTextColor="#003f5c"
+                        value={email}
+                        onChangeText={(email) => setEmail(email)}
+                    />
+                    <TextInput
+                        style={styles.textInput}
+                        placeholder="password"
+                        placeholderTextColor="#003f5c"
+                        secureTextEntry={true}
+                        value={password}
+                        onChangeText={(password) => setPassword(password)}
+                    />
+                    <Button
+                        title="Sign In"
+                        onPress={signIn}>
+                    </Button>
+                    <Text
+                        style={styles.signIn}
+                        onPress={() => { navigation.navigate('Register & Sign in')}}
+                    > Register here </Text>
+                </View>
+            </SafeAreaView>
+       
     )
 }
 const styles = StyleSheet.create({

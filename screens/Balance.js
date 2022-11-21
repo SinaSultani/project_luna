@@ -1,33 +1,38 @@
-import React from 'react';
+import React, { useContext }  from 'react';
 import { SafeAreaView, Text, View, StyleSheet, StatusBar, Button} from "react-native"
-
+import  { UserContext } from '../providers/UserProvider'
 
 
 const Balance = ( {navigation} ) => {
 
     const toTopUp = () => {
         return navigation.navigate('TopUp')
-
     }
+
+    const { email, user, balance, loggedIn } = useContext(UserContext);
+    console.log(user)
     
     return (
         
         <SafeAreaView style={{ flex: 1 }}>
-            <View style={{ height: "100%" }}>
-                <Text style={{ color: "red", fontSize: 30, }}>
-                    Your Balance is 1kr.
-                </Text>
-                <Text style={{fontSize: 20}}>
-                    You can top up your balance
+            {!loggedIn  ?
+                <View style={{ height: "100%" }}>
+                    <Text style={{ fontSize: 20, }} onPress={() => navigation.navigate('Sign In')}>
+                        Please Log In to see your balance
+                    </Text>
+                </View> 
+                    :  
+                <View>
+                    <Text>
+                        Hello {email}, your current balance is {balance} kr.
+                        If you want to top up your account, please tap here.
+                    </Text>
                     <Button
                         title='here'
                         onPress={() => toTopUp()}
-                    >
-
-                    </Button>
-                </Text>
-
-            </View>
+                    />
+                </View>
+            }
         </SafeAreaView>
     )
 }
