@@ -6,23 +6,14 @@
  * @flow strict-local
  */
 
-import React from 'react';
+import React, { useContext } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { UserProvider } from './providers/UserProvider';
-import { FirestoreUsersProvider } from './providers/FirestoreUsersProvider';
-
-
+import { UserContext, UserProvider } from './providers/UserProvider';
 import {
-  Button,
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
   StyleSheet,
-  Text,
   useColorScheme,
-  View,
 } from 'react-native';
 
 import SignIn from './screens/SignIn';
@@ -45,10 +36,10 @@ const TermsStack = createStackNavigator();
 const HomeTab = () => {
   return (
     <Tab.Navigator screenOptions={{ headerShown: false }}>
-       <Tab.Screen
+       {/* <Tab.Screen
         name="Sign Up/In"
         component={RegisterStackScreen}
-      />
+      /> */}
        <Tab.Screen
         name="Balance"
         component={BalanceStackScreen}
@@ -77,11 +68,11 @@ function RegisterStackScreen() {
         name="Sign In"
         component={SignIn}
       />
-       <RegisterStack.Screen 
+       {/* <RegisterStack.Screen 
         screenOptions={{ headerShown: false }}
         name="Profile"
         component={Profile}
-      />
+      /> */}
     </RegisterStack.Navigator>
   );
 };
@@ -90,7 +81,12 @@ function BalanceStackScreen() {
   return (
     <BalanceStack.Navigator
   
-    >
+    > 
+     <RegisterStack.Screen 
+        screenOptions={{ headerShown: false }}
+        name="Profile"
+        component={Profile}
+      />
       <BalanceStack.Screen 
         name="Your Balance"
         component={Balance}
@@ -123,7 +119,33 @@ function TermsStackScreen() {
   );
 };
 
+const MyNavigator = () => {
+const { user } = useContext(UserContext)
 
+  if(!user) {
+    // <Stack.Navigator>
+    <>
+    <Stack.Group screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Main" component={RegisterStackScreen} />
+    </Stack.Group>
+</>
+  {/* </Stack.Navigator> */}
+  }
+  else {
+    // <Stack.Navigator>
+<>
+    <Stack.Group screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="HomeTab" component={HomeTab} />
+    </Stack.Group>
+
+    <Stack.Group screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Balance" component={BalanceStackScreen} />
+      <Stack.Screen name="Terms of use" component={TermsStackScreen} />
+    </Stack.Group>
+    </>
+  {/* </Stack.Navigator> */}
+  }
+}
 
 
 const App = ( {navigation} ) => {
@@ -138,9 +160,10 @@ const App = ( {navigation} ) => {
   return (
     <UserProvider>
       <NavigationContainer>
+        
         <Stack.Navigator>
-
-          <Stack.Group screenOptions={{ headerShown: false }}>
+         <MyNavigator />
+   {/*       <Stack.Group screenOptions={{ headerShown: false }}>
             <Stack.Screen name="HomeTab" component={HomeTab} />
           </Stack.Group>
 
@@ -148,7 +171,7 @@ const App = ( {navigation} ) => {
             <Stack.Screen name="Main" component={RegisterStackScreen} />
             <Stack.Screen name="Balance" component={BalanceStackScreen} />
             <Stack.Screen name="Terms of use" component={TermsStackScreen} />
-          </Stack.Group>
+          </Stack.Group> */}
         </Stack.Navigator>
       </NavigationContainer>
     </UserProvider>

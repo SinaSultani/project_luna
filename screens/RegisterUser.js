@@ -1,16 +1,13 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { SafeAreaView, View, Button, StyleSheet, TextInput, Text, Image} from "react-native"
-import auth from '@react-native-firebase/auth';
 import { UserContext } from '../providers/UserProvider';
-import firestore from '@react-native-firebase/firestore'
-
 
 const RegisterUser = ( { navigation} ) => {
 
 const [ registered, setRegistered ] = useState(false)
 const [ initializing, setInitializing ] = useState(true)
 
-const { email, setEmail, password, setPassword, setFirestoreUID, setUser, setLoggedIn, createUser } = useContext(UserContext)
+const { email, setEmail, password, setPassword, createUser } = useContext(UserContext)
 
 
 // const onAuthStateChanged = (user) => {
