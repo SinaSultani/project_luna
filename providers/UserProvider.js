@@ -49,6 +49,9 @@ try {
 }
 }
 
+// If we put theese functions into UserProvider and make them global
+// than we can not use navigation.navigate() from here but in App.js in return  
+// we check if there is a user if(!user) <Sign/> else <Profile/> type of logic
 const signIn = async () => {
     try {
         if (email === "" || password === "") {
