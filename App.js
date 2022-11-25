@@ -123,17 +123,17 @@ const MyNavigator = () => {
 const { user } = useContext(UserContext)
 
   if(!user) {
-    // <Stack.Navigator>
-    <>
+    <Stack.Navigator>
+  
     <Stack.Group screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Main" component={RegisterStackScreen} />
     </Stack.Group>
-</>
-  {/* </Stack.Navigator> */}
+
+  </Stack.Navigator>
   }
   else {
-    // <Stack.Navigator>
-<>
+    <Stack.Navigator>
+
     <Stack.Group screenOptions={{ headerShown: false }}>
       <Stack.Screen name="HomeTab" component={HomeTab} />
     </Stack.Group>
@@ -142,8 +142,8 @@ const { user } = useContext(UserContext)
       <Stack.Screen name="Balance" component={BalanceStackScreen} />
       <Stack.Screen name="Terms of use" component={TermsStackScreen} />
     </Stack.Group>
-    </>
-  {/* </Stack.Navigator> */}
+
+  </Stack.Navigator>
   }
 }
 
@@ -161,7 +161,7 @@ const App = ( {navigation} ) => {
     <UserProvider>
       <NavigationContainer>
         
-        <Stack.Navigator>
+      
          <MyNavigator />
    {/*       <Stack.Group screenOptions={{ headerShown: false }}>
             <Stack.Screen name="HomeTab" component={HomeTab} />
@@ -172,7 +172,7 @@ const App = ( {navigation} ) => {
             <Stack.Screen name="Balance" component={BalanceStackScreen} />
             <Stack.Screen name="Terms of use" component={TermsStackScreen} />
           </Stack.Group> */}
-        </Stack.Navigator>
+     
       </NavigationContainer>
     </UserProvider>
   );
