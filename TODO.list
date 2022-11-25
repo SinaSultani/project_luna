@@ -1,0 +1,22 @@
+ 11/22 -2022:
+CHECK: När användaren skapas på Auth ska den skapas upp i Firestore också. 
+ 
+ 
+    Vad vill vi att man kan göra på EditProfile?
+     Sätt in säkerhetskontroller på samtliga fält här! 
+     Redigera sitt display namn(firstName, lastName),
+     Välja sitt yrke från en lista av alternativ,
+     lägga till sin födelsedag,
+     skriva en biografi,
+     Lägga till en bild på sig själv(slutsteg 1)(För att få jobba med kamera och bilder)
+     Ladda upp sitt CV(slutsteg 2) (För att få jobba med uppladdning av dokument på Android)
+
+
+Redigera sitt displayName: 
+    Göra en update mot Firebase Auth och ändra displayName i Firestore
+
+Lägga till sin födelesedag: 
+    Skapa upp födelsedags-värdet på användaren i firestore och putta in användarens valda date
+
+Skriva en biografi:
+    Skapa upp biografi-fältet på användaren i firestore och putta in användarens Text
