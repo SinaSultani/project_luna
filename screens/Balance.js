@@ -6,11 +6,13 @@ import  { UserContext } from '../providers/UserProvider'
 const Balance = ( {navigation} ) => {
 
     const toTopUp = () => {
-        return navigation.navigate('TopUp')
+        navigation.navigate('Balance', {
+            screen: 'TopUp'
+        })
     }
 
     const { email, user, balance, loggedIn } = useContext(UserContext);
-    console.log(user)
+    
     
     return (
         

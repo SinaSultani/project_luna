@@ -88,7 +88,9 @@ function RegisterStackScreen() {
 
 function BalanceStackScreen() {
   return (
-    <BalanceStack.Navigator>
+    <BalanceStack.Navigator
+  
+    >
       <BalanceStack.Screen 
         name="Your Balance"
         component={Balance}
@@ -135,25 +137,20 @@ const App = ( {navigation} ) => {
 
   return (
     <UserProvider>
-      <FirestoreUsersProvider>
-        <NavigationContainer>
-          <Stack.Navigator>
-            
-            <Stack.Group screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="HomeTab" component={HomeTab} />
-            </Stack.Group>
+      <NavigationContainer>
+        <Stack.Navigator>
 
-            <Stack.Group screenOptions={{ headerShown: false }}>
-                <Stack.Screen name="Your Balance" component={BalanceStackScreen} />
-                <Stack.Screen name="Main" component={RegisterStackScreen} />
-                {/* <Stack.Screen name="Your Profile" component={ProfileStackScreen} /> */}
-                <Stack.Screen  name="Terms of use" component={TermsStackScreen} />
-                <Stack.Screen  name="Top Up" component={BalanceStackScreen}/>
-            </Stack.Group>
+          <Stack.Group screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="HomeTab" component={HomeTab} />
+          </Stack.Group>
 
-          </Stack.Navigator>
-        </NavigationContainer>
-      </FirestoreUsersProvider>
+          <Stack.Group screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="Main" component={RegisterStackScreen} />
+            <Stack.Screen name="Balance" component={BalanceStackScreen} />
+            <Stack.Screen name="Terms of use" component={TermsStackScreen} />
+          </Stack.Group>
+        </Stack.Navigator>
+      </NavigationContainer>
     </UserProvider>
   );
 };

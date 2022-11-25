@@ -1,49 +1,51 @@
-import React, { useState, useContext, useEffect, useCallback } from 'react';
-import { SafeAreaView, View, Button, StyleSheet, TextInput, StatusBar, Text, Image} from "react-native"
-import firebase from '@react-native-firebase/app';
-import { getAuth } from '@react-native-firebase/auth';
+import React, { useState, useContext, useEffect } from 'react';
+import { SafeAreaView, View, Button, StyleSheet, TextInput, Text, Image} from "react-native"
 import auth from '@react-native-firebase/auth';
 import { UserContext } from '../providers/UserProvider';
-import { doc, setDoc } from '@react-native-firebase/firestore'
-import { FirestoreUsersContext } from '../providers/FirestoreUsersProvider';
 import firestore from '@react-native-firebase/firestore'
 
 
 const RegisterUser = ( { navigation} ) => {
 
 const [ registered, setRegistered ] = useState(false)
+const [ initializing, setInitializing ] = useState(true)
 
-const { email, setEmail, password, setPassword } = useContext(UserContext)
+const { email, setEmail, password, setPassword, setFirestoreUID, setUser, setLoggedIn, createUser } = useContext(UserContext)
 
-// useCallback(() => {
-//     updateFirestore()
-//     console.log("updated firestore")
-// }, [registered])
 
-const updateFirestore = useCallback(() => {
-    firestore().collection('users')
-    .add({
-         email: email
-     })
-     .then((email) => console.log(email))
- }, [registered])
+// const onAuthStateChanged = (user) => {
+//     setUser(user);
+//     if (initializing) setInitializing(false);
+// };
+
+// useEffect(() => {
+//     const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
+//     return subscriber;
+// }, [])
  
 
-const createUser = async () => {
-try {
-    console.log("email and password: ", email, password)
-    const { user } = await auth().createUserWithEmailAndPassword(email, password);
-    setRegistered(true);
-    console.log("THE CREATED USER: ", user)
+// const createUser = async () => {
+// try {
+//     const { user } = await auth().createUserWithEmailAndPassword(email, password);
+//     onAuthStateChanged(user)
    
-    navigation.navigate('Profile');
+//    if (user) {
+//     navigation.navigate('Profile')
+//     setLoggedIn(true)
+//     setFirestoreUID(user.uid)
+//     firestore().collection('users')
+//     .doc(user.uid)
+//     .set({
+//          email: email,
+//          name: "",
+//          balance: 0,
+//      })
+//     }
 
-} catch (err) {
-    console.log("NOPE, NOT CREATED")
-}
-}
-
-
+// } catch (err) {
+//     console.log("NOPE, NOT CREATED")
+// }
+// }
 
 return (
         <SafeAreaView style={styles.container}>
@@ -69,7 +71,7 @@ return (
                 />
                 <Button
                     title="Register"
-                    onPress={() => {createUser(); updateFirestore() }}>
+                    onPress={() => {createUser()}}>
                 </Button>
             </View>
             <View style={{marginTop: 20, alignSelf: "center", alignItems: "center"}}>

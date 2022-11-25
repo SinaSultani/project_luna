@@ -10,24 +10,22 @@ const Profile = ({ navigation}) => {
   
   // const authh = getAuth().currentUser;
   // console.log("This is Auth", authh)
-  const { email, setEmail, setPassword, setLoggedIn } = useContext(UserContext)
+  const { email, setEmail, setPassword, setLoggedIn, signOut } = useContext(UserContext)
+  
 
-
-  const signOut = async () => {
-    setPassword(""); 
-    setEmail("");
-    await firebase.auth().signOut().then(() => {
-        setLoggedIn(false)
-        console.log("Sign-out successful")
-        navigation.navigate('Sign In')
-      }).catch((error) => {
-        console.log(error)
-    });
-
-  }
+  // const signOut = async () => {
+  //   setPassword(""); 
+  //   setEmail("");
+  //   await firebase.auth().signOut().then(() => {
+  //       setLoggedIn(false)
+  //       navigation.navigate('Sign In')
+  //     }).catch((error) => {
+  //       console.log(error)
+  //   });
+  // }
 
   const toBalance = () => {
-    navigation.navigate('Your Balance')
+    navigation.navigate('Balance', { screen: 'Your Balance'})
   }
 
     return (
@@ -36,20 +34,18 @@ const Profile = ({ navigation}) => {
             <Text style={styles.title}> Welcome mister  </Text>
             <Text style={[styles.title, {fontSize: 25} ]}>{email}</Text>
           </View>
-          <Pressable
-              style={styles.button}
-            
-              onPress={signOut}
-            >
-              <Text style={{color:"white", alignSelf:"center"}}>Log Out</Text>
-            </Pressable>
-          <Pressable
-              style={styles.button}
-            
-              onPress={toBalance}
-            >
-              <Text style={{color:"white", alignSelf:"center"}}>To balance</Text>
-            </Pressable>
+        <Pressable
+          style={styles.button}
+          onPress={toBalance}
+        >
+          <Text style={{ color: "white", alignSelf: "center" }}>To balance</Text>
+        </Pressable>
+        <Pressable
+          style={[{marginTop: "auto", bottom: 10}, styles.button]}
+          onPress={() => signOut()}
+        >
+          <Text style={{ color: "white", alignSelf: "center" }}>Log Out</Text>
+        </Pressable>
         </SafeAreaView>
     )
 }
