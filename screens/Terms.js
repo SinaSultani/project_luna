@@ -2,7 +2,7 @@ import React from "react";
 import { Text } from "react-native";
 
 
-const Terms = () => {
+const Terms = ({ navigation }) => {
     return (
         <Text>
             What is Lorem Ipsum?

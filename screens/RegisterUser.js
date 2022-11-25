@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import {
     StyleSheet,
     Text,
@@ -9,91 +9,88 @@ import {
 import { TextInput, Button, Paragraph, Dialog, Portal } from 'react-native-paper';
 import firebase from '@react-native-firebase/app';
 import getAuth from '@react-native-firebase/auth';
+import { UserContext } from '../context/UserProvider';
+import Profile from './Profile';
 
-const Register = () => {
+const Register = ({ navigation }) => {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
 
-
-
-    const createUser = async () => {
-        try {
-            console.log("email and password: ", email, password)
-            //const { user } = await auth().createUserWithEmailAndPassword(email, password);
-            const auth = getAuth().currentUser;
-            // await sendEmailVerification();
-            // const update = {
-            //     displayName: firstName + " " + lastName
-            // }
-            // await auth.currentUser.updateProfile(update);
-            console.log("THE auth: ", auth);
-            // console.log("Did we update: ", update)
-        } catch (err) {
-            console.log("NOPE, NOT CREATED")
-        }
+    const { registerUser, user } = useContext(UserContext);
+    const ToProfile = () => {
+        return navigation.navigate('Profile', {
+            screen: 'Another Profile'
+        });
     }
 
     return (
-        <View style={styles.container}>
-            <Image style={styles.image} source={require("../assets/bosi-logo.png")} />
-            <View style={styles.inputView}>
-                <TextInput
-                    style={styles.TextInput}
-                    placeholder="First name."
-                    placeholderTextColor="#003f5c"
-                    value={firstName}
-                    onChangeText={(firstName) => setFirstName(firstName)}
-                />
-            </View>
-            <View style={styles.inputView}>
-                <TextInput
-                    style={styles.TextInput}
-                    placeholder="Last name."
-                    placeholderTextColor="#003f5c"
-                    value={lastName}
-                    onChangeText={(lastName) => setLastName(lastName)}
-                />
-            </View>
-            <View style={styles.inputView}>
-                <TextInput
-                    style={styles.TextInput}
-                    placeholder="Email."
-                    placeholderTextColor="#003f5c"
-                    value={email}
-                    onChangeText={(email) => setEmail(email)}
-                />
-            </View>
+        <>
+            {!user ? (
+                <View style={styles.container}>
+                    <Image style={styles.image} source={require("../assets/bosi-logo.png")} />
+                    <View style={styles.inputView}>
+                        <TextInput
+                            style={styles.TextInput}
+                            placeholder="First name."
+                            placeholderTextColor="#003f5c"
+                            value={firstName}
+                            onChangeText={(firstName) => setFirstName(firstName)}
+                        />
+                    </View>
+                    <View style={styles.inputView}>
+                        <TextInput
+                            style={styles.TextInput}
+                            placeholder="Last name."
+                            placeholderTextColor="#003f5c"
+                            value={lastName}
+                            onChangeText={(lastName) => setLastName(lastName)}
+                        />
+                    </View>
+                    <View style={styles.inputView}>
+                        <TextInput
+                            style={styles.TextInput}
+                            placeholder="Email."
+                            placeholderTextColor="#003f5c"
+                            value={email}
+                            onChangeText={(email) => setEmail(email)}
+                        />
+                    </View>
 
-            <View style={styles.inputView}>
-                <TextInput
-                    style={styles.TextInput}
-                    placeholder="Password."
-                    placeholderTextColor="#003f5c"
-                    secureTextEntry={true}
-                    value={password}
-                    onChangeText={(password) => setPassword(password)}
-                />
-            </View>
-            <View style={styles.inputView}>
-                <TextInput
-                    style={styles.TextInput}
-                    placeholder="Confirm Password."
-                    placeholderTextColor="#003f5c"
-                    secureTextEntry={true}
-                    value={confirmPassword}
-                    onChangeText={(confirmPassword) => setConfirmPassword(confirmPassword)}
-                />
-            </View>
+                    <View style={styles.inputView}>
+                        <TextInput
+                            style={styles.TextInput}
+                            placeholder="Password."
+                            placeholderTextColor="#003f5c"
+                            secureTextEntry={true}
+                            value={password}
+                            onChangeText={(password) => setPassword(password)}
+                        />
+                    </View>
+                    <View style={styles.inputView}>
+                        <TextInput
+                            style={styles.TextInput}
+                            placeholder="Confirm Password."
+                            placeholderTextColor="#003f5c"
+                            secureTextEntry={true}
+                            value={confirmPassword}
+                            onChangeText={(confirmPassword) => setConfirmPassword(confirmPassword)}
+                        />
+                    </View>
 
-            <Button style={styles.loginBtn}
-                onPress={createUser}>
-                Register
-            </Button>
-        </View>
+                    <Button style={styles.loginBtn}
+                        onPress={() => registerUser(email, firstName + " " + lastName, password)}>
+                        Register
+                    </Button>
+                </View>
+            ) : (
+                <Profile navigation={navigation} />
+            )}
+        </>
     )
+
 }
 
 

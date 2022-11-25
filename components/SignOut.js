@@ -8,7 +8,7 @@ const SignOut = ({ navigation }) => {
         await auth()
             .signOut()
             .then(() => console.log('User signed out!'));
-        navigation.navigate('Sign In')
+
     }
 
 }

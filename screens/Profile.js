@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
     StyleSheet,
     Text,
@@ -7,58 +7,55 @@ import {
     TouchableOpacity
 } from 'react-native';
 import { TextInput, Button, Paragraph, Dialog, Portal } from 'react-native-paper';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import getAuth from '@react-native-firebase/auth';
 import auth from '@react-native-firebase/auth';
-import SignIn from "./SignIn";
-// import SignOut from "../components/SignOut";
-// import signOut from "../components/SignOut";
-//import SignIn from "./SignIn";
+// import SignIn from "./SignIn";
+import { UserContext } from "../context/UserProvider";
+import { useNavigation } from '@react-navigation/native';
 
-const Profile = ({ navigation, user }) => {
+const Profile = ({ navigation, children }) => {
 
-    const signOut = async () => {
+    const { user, loadingName, logoutUser } = useContext(UserContext);
 
+    useEffect(() => {
+    }, [])
+
+    const ToEdit = () => {
         try {
-            await auth()
-                .signOut()
-                .then(() => console.log("COMPLETE!"));
-
-        } catch (err) {
-            console.log("DID NOT SIGN OUT")
+            return navigation.navigate("Edit Profile");
         }
-    }
-    const currentAuth = auth().onAuthStateChanged;
-    // const currentAuth = getAuth().currentUser;
-    // console.log("currentAuth: ", currentAuth)
-    //USER ÄR TOM HÄR OM INTE SIGN IN SKICKAT IN DATA. VI MÅSTE KOLLA PÅ onAuthStateChanged om användaren är inloggad eller inte, om den inte är det, navigera till Sign In
-    if (!currentAuth) {
-        return (
-            navigation.navigate('Sign In')
-        )
+        catch (err) {
+            alert(err.message)
+        }
     }
 
     return (
-        <View style={styles.container}>
-            <View style={styles.header}></View>
-            <Image style={styles.avatar} source={{ uri: 'https://bootdey.com/img/Content/avatar/avatar6.png' }} />
-            <View style={styles.body}>
-                <View>
-                    <Text style={styles.name}>{user.email}</Text>
-                    <Text style={styles.info}>UX Designer / Mobile developer</Text>
-                    <Text style={styles.description}>Lorem ipsum dolor sit amet, saepe sapientem eu nam. Qui ne assum electram expetendis, omittam deseruisse consequuntur ius an,</Text>
-                    <TouchableOpacity style={styles.buttonContainer}>
-                        <Text>Opcion 1</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.buttonContainer}>
-                        <Text>Opcion 2</Text>
-                    </TouchableOpacity>
+        <>
+            <SafeAreaView>
+                <View style={styles.container}>
+                    <View style={styles.header}></View>
+                    <Image style={styles.avatar} source={{ uri: 'https://bootdey.com/img/Content/avatar/avatar6.png' }} />
+                    <View style={styles.body}>
+                        <View>
+                            <Text style={styles.name}>{user?.email}</Text>
+                            <Text style={styles.name}>{user?.displayName || loadingName}</Text>
+                            <Text style={styles.info}>UX Designer / Mobile developer</Text>
+                            <Text style={styles.description}>Lorem ipsum dolor sit amet, saepe sapientem eu nam. Qui ne assum electram expetendis, omittam deseruisse consequuntur ius an,</Text>
+                            <Button style={styles.buttonContainer}
+                                onPress={() => ToEdit()}>
+                                Edit Profile
+                            </Button>
+                        </View>
+                        <Button
+                            onPress={() => logoutUser()
+                            }>
+                            Sign Out
+                        </Button>
+                    </View>
                 </View>
-                <Button
-                    onPress={signOut}>
-                    Sign Out
-                </Button>
-            </View>
-        </View>
+            </SafeAreaView>
+        </>
     );
 }
 
@@ -82,6 +79,10 @@ const styles = StyleSheet.create({
         fontSize: 22,
         color: "#00BFFF",
         fontWeight: '600',
+        textAlign: 'center',
+        justifyContent: 'center',
+        alignItems: 'center',
+        alignContent: 'center'
     },
     body: {
         marginTop: 40,
@@ -90,6 +91,7 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         padding: 30,
+        justifyContent: 'center'
     },
     name: {
         fontSize: 28,
@@ -99,7 +101,8 @@ const styles = StyleSheet.create({
     info: {
         fontSize: 16,
         color: "#00BFFF",
-        marginTop: 10
+        marginTop: 10,
+        textAlign: 'center'
     },
     description: {
         fontSize: 16,
@@ -111,8 +114,8 @@ const styles = StyleSheet.create({
         marginTop: 10,
         height: 45,
         flexDirection: 'row',
-        justifyContent: 'center',
         alignItems: 'center',
+        justifyContent: 'center',
         marginBottom: 20,
         width: 250,
         borderRadius: 30,

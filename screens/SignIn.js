@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import {
     StyleSheet,
     Text,
@@ -7,56 +7,44 @@ import {
     TouchableOpacity,
 } from "react-native";
 import { TextInput, Button, Paragraph, Dialog, Portal } from 'react-native-paper';
-import firebase from '@react-native-firebase/app';
-import auth from '@react-native-firebase/auth';
-import getAuth from '@react-native-firebase/auth';
 import Profile from "./Profile";
-// import { UserProvider } from "../context/UserProvider";
 import { UserContext } from '../context/UserProvider';
+import { useNavigation } from '@react-navigation/native';
+import Loader from "./Loader";
 
 
 
-const SignIn = ({ navigation }) => {
-    const [email, setEmail] = useState('');
+function SignIn({ navigation }) {
+    const inputRef = useRef();
+    const [email, setEmail] = useState(null);
     const [password, setPassword] = useState('');
-    // // Set an initializing state whilst Firebase connects
-    // const [initializing, setInitializing] = useState(true);
-    // const [user, setUser] = useState();
 
-    const { signInUser } = useContext(UserContext);
-    console.log("signInUser: ", signInUser)
-    // const currentAuth = getAuth().currentUser;
+    const { signInUser, user, initializing, forgotPassword } = useContext(UserContext);
 
+    // useEffect(() => {
+    //     // console.log("changes in initializing in SignIn; ", initializing)
+    // }, [initializing])
 
-    // Handle user state changes
-    // function onAuthStateChanged(user) {
-    //     setUser(user);
-    //     if (initializing) setInitializing(false);
-    // }
+    const ToProfile = () => {
+        try {
+            return navigation.navigate('Profile');
+        } catch (err) {
+            console.log("error navigating from SignIn to Profile: ", err.message)
+        }
+    }
 
-    // useEffect(async () => {
-    //     const subscriber = await auth().onAuthStateChanged(onAuthStateChanged);
-    //     return subscriber; // unsubscribe on unmount
-    // }, []);
-
-    // if (initializing) return <Text>NULL</Text>;
-
-    // const signIn = async () => {
-    //     try {
-    //         const { user } = await auth().signInWithEmailAndPassword(email, password);
-    //         navigation.navigate('The Profile')
-    //     } catch (err) {
-    //         console.log("Not signed in")
-    //     }
-    // }
+    if (initializing) return <Loader />
 
     return (
         <>
+
             <View style={styles.container}>
                 <Image style={styles.image} source={require("../assets/bosi-logo.png")} />
                 <View style={styles.inputView}>
                     <TextInput
                         style={styles.TextInput}
+                        ref={inputRef}
+                        value={email}
                         placeholder="Email."
                         placeholderTextColor="#003f5c"
                         onChangeText={(email) => setEmail(email)}
@@ -68,27 +56,22 @@ const SignIn = ({ navigation }) => {
                         placeholder="Password."
                         placeholderTextColor="#003f5c"
                         secureTextEntry={true}
+                        value={password}
                         onChangeText={(password) => setPassword(password)}
                     />
                 </View>
                 <TouchableOpacity>
-                    <Text style={styles.forgot_button}>Forgot Password?</Text>
+                    <Button style={styles.forgot_button}
+                        onPress={() => forgotPassword(email)}>Forgot Password?</Button>
                 </TouchableOpacity>
-
                 <Button style={styles.loginBtn}
-                    onPress={() => signInUser(email, password)}>
+                    onPress={() => signInUser(email, password)
+                    }>
                     Login
                 </Button>
             </View>
         </>
     )
-
-
-    return (
-        <Profile />
-    )
-
-
 }
 
 const styles = StyleSheet.create({

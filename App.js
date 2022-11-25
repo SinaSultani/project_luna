@@ -6,7 +6,7 @@
  * @flow strict-local
  */
 
-import React from 'react';
+import React, { useContext } from 'react';
 import { Node } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
@@ -15,7 +15,9 @@ import SignInScreen from './screens/SignIn';
 import TermsScreen from './screens/Terms';
 import RegisterScreen from './screens/RegisterUser';
 import ProfileScreen from './screens/Profile';
-import UserProvider from './context/UserProvider';
+import UserProvider, { UserContext } from "./context/UserProvider";
+import EditProfileScreen from './screens/EditProfile';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {
   SafeAreaView,
   ScrollView,
@@ -33,6 +35,7 @@ import {
   LearnMoreLinks,
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
+import { useNavigation } from '@react-navigation/native';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -41,22 +44,50 @@ const TermsStack = createStackNavigator();
 const RegisterStack = createStackNavigator();
 const BalanceStack = createStackNavigator();
 const ProfileStack = createStackNavigator();
+const EditProfileStack = createStackNavigator();
 
+//Screen names
+const signInName = 'Sign In';
+const registerName = 'Register';
+const termsName = 'Terms';
 
-function HomeTab({ navi }) {
+const HomeTab = () => {
+  const { user, logoutUser, loadingName } = useContext(UserContext);
   return (
     <Tab.Navigator
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName;
+          let rn = route.name;
+
+          if (rn === signInName) {
+            iconName = 'home';
+          }
+          else if (rn === registerName) {
+            iconName = 'favorite';
+          }
+          else if (rn === termsName) {
+            iconName = 'book';
+          }
+          return <MaterialIcons name={iconName} size={20} color={color} />;
+        },
+        "tabBarActiveTintColor": 'tomato',
+        "tabBarInactiveTintColor": 'grey',
+        "tabBarLabelStyle": { "paddingBottom": 10, "fontSize": 10 },
+        "tabBarStyle": { "padding": 10, "height": 70 }
+      })}
+
     >
       <Tab.Screen
-        name="Sign In"
+        name={signInName}
         options={{ headerShown: false }}
         component={SignInStackScreen} />
       <Tab.Screen
-        name="Register"
+        name={registerName}
         options={{ headerShown: false }}
         component={RegisterStackScreen} />
       <Tab.Screen
-        name="Terms"
+        name={termsName}
         options={{ headerShown: false }}
         component={TermsStackScreen} />
     </Tab.Navigator>
@@ -64,33 +95,51 @@ function HomeTab({ navi }) {
 }
 
 function SignInStackScreen() {
-
   return (
     <SignInStack.Navigator>
       <SignInStack.Screen
         name="The Sign In"
         options={{ headerShown: false }}
         component={SignInScreen} />
-      <SignInStack.Screen
+      {/* <SignInStack.Screen
         name="The Profile"
         options={{ headerShown: false }}
-        component={ProfileScreen} />
+        component={ProfileScreen} /> */}
     </SignInStack.Navigator>
-
   )
 }
 function ProfileStackScreen() {
 
   return (
-    <ProfileStack.Navigator>
+    <ProfileStack.Navigator screenOptions={({ route }) => ({
+      "tabBarStyle": [
+        {
+          "display": "none"
+        }
+      ]
+    })}>
       <ProfileStack.Screen
         name="The Profile"
-        options={{ headerShown: false }}
+        options={{ headerShown: false, }}
         component={ProfileScreen} />
+      {/* <ProfileStack.Screen
+        name="The EditProfile"
+        component={EditProfileScreen} /> */}
     </ProfileStack.Navigator>
   )
 }
 
+function EditProfileStackScreen() {
+
+  return (
+    <EditProfileStack.Navigator>
+      <EditProfileStack.Screen
+        name="The Edit Profile"
+        options={{ headerShown: true }}
+        component={EditProfileScreen} />
+    </EditProfileStack.Navigator>
+  )
+}
 
 function TermsStackScreen() {
   return (
@@ -140,34 +189,58 @@ const Section = ({ children, title }) => {
   );
 };
 
+const Navigator = ({ navigation }) => {
+  const { user, logoutUser, loadingName } = useContext(UserContext);
+  if (!user) {
+    return (
+      <Stack.Navigator>
+        <Stack.Group screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="HomeTab" component={HomeTab} />
+        </Stack.Group>
+        <Stack.Group screenOptions={{ headerShown: false }}>
+          <Stack.Screen name='Sign In' component={SignInStackScreen} />
+          <Stack.Screen name="Register" component={RegisterStackScreen} />
+          <Stack.Screen name='Terms' component={TermsStackScreen} />
+        </Stack.Group>
+      </Stack.Navigator>
+    )
+  }
+  return (
+    <Stack.Navigator>
+      <Stack.Group screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="Profile" component={ProfileStackScreen} />
+        <Stack.Screen name="Edit Profile" component={EditProfileStackScreen} />
+      </Stack.Group>
+    </Stack.Navigator>
+  )
+}
 
 const App = ({ navigation }) => {
 
-
   const isDarkMode = useColorScheme() === 'dark';
-
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
 
   return (
-    <UserProvider>
-      <NavigationContainer>
-        <Stack.Navigator>
+    <NavigationContainer>
+      <UserProvider>
+        <Navigator />
+        {/* <Stack.Navigator>
           <Stack.Group screenOptions={{ headerShown: false }}>
             <Stack.Screen name="HomeTab" component={HomeTab} />
           </Stack.Group>
           <Stack.Group screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="Sign In" component={SignInStackScreen} />
-            <Stack.Screen name="Terms" component={TermsStackScreen} />
+            <Stack.Screen name="Profile" component={ProfileStackScreen} />
+            <Stack.Screen name="Edit Profile" component={EditProfileStackScreen} />
+            <Stack.Screen name="Sign In" component={SignInScreen} />
             <Stack.Screen name="Register" component={RegisterStackScreen} />
+            <Stack.Screen name='Terms' component={TermsStackScreen} />
           </Stack.Group>
-        </Stack.Navigator>
-      </NavigationContainer>
-    </UserProvider>
+        </Stack.Navigator> */}
+      </UserProvider>
+    </NavigationContainer>
   );
-
-
 };
 
 const styles = StyleSheet.create({

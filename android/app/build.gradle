@@ -34,6 +34,8 @@ apply plugin: "com.google.gms.google-services"
  *   // whether to bundle JS and assets in debug mode
  *   bundleInDebug: false,
  *
+ *
+ *
  *   // whether to bundle JS and assets in release mode
  *   bundleInRelease: true,
  *
@@ -90,7 +92,7 @@ project.ext.react = [
 ]
 
 apply from: "../../node_modules/react-native/react.gradle"
-
+apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
 /**
  * Set this to true to create two separate APKs instead of one:
  *   - An APK that only works on ARM devices
