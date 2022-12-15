@@ -12,13 +12,25 @@ import getAuth from '@react-native-firebase/auth';
 import auth from '@react-native-firebase/auth';
 // import SignIn from "./SignIn";
 import { UserContext } from "../context/UserProvider";
+import { firestore } from "../firebase";
 import { useNavigation } from '@react-navigation/native';
+import { DownloadUserImage } from '../context/UserProvider';
+import Loader from "./Loader";
 
-const Profile = ({ navigation, children }) => {
+const Profile = ({ navigation, route }) => {
+    const [newUrl, setNewUrl] = useState("");
+    const [url, setUrl] = useState('');
+    const { user, loadingName, DownloadUserImage, logoutUser } = useContext(UserContext);
+    console.log("user in profile: ", user)
+    useEffect(async () => {
+        if (user) {
+            setUrl(user.photoURL)
+        }
+    }, [url])
 
-    const { user, loadingName, logoutUser } = useContext(UserContext);
-
-    useEffect(() => {
+    useEffect(async () => {
+        const dbUser = await firestore().collection("users").doc(user.uid).get();
+        // console.log("dbUser in profile: ", dbUser)
     }, [])
 
     const ToEdit = () => {
@@ -29,13 +41,14 @@ const Profile = ({ navigation, children }) => {
             alert(err.message)
         }
     }
-
+    // if (!url) { return <Loader /> }
     return (
         <>
             <SafeAreaView>
                 <View style={styles.container}>
                     <View style={styles.header}></View>
-                    <Image style={styles.avatar} source={{ uri: 'https://bootdey.com/img/Content/avatar/avatar6.png' }} />
+                    <Image style={styles.avatar} source={{ uri: url }} />
+
                     <View style={styles.body}>
                         <View>
                             <Text style={styles.name}>{user?.email}</Text>

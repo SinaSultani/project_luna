@@ -1,4 +1,4 @@
- 11/22 -2022:
+ 02/12 -2022:
 CHECK: När användaren skapas på Auth ska den skapas upp i Firestore också. 
  
  
@@ -20,3 +20,6 @@ Lägga till sin födelesedag:
 
 Skriva en biografi:
     Skapa upp biografi-fältet på användaren i firestore och putta in användarens Text
+
+
+EditProfile måste rerendas när när UploadImage körts och en ny url har satts.   

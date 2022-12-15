@@ -9,160 +9,234 @@ import {
     View,
     Image,
     TouchableOpacity,
-    Platform
+    Platform,
+    Modal,
+    ScrollView,
+    Pressable
 } from 'react-native';
 import { TextInput, Button, Paragraph, Dialog, Portal } from 'react-native-paper';
+import { auth } from '../firebase';
+import { firestore } from '../firebase';
 // import { SafeAreaView } from 'react-native-safe-area-context';
 import DatePicker from 'react-native-date-picker';
-import { SelectList } from 'react-native-dropdown-select-list'
-import * as ImagePicker from "react-native-image-picker"
+import { SelectList } from 'react-native-dropdown-select-list';
+//import * as ImagePicker from "react-native-image-picker";
+import { launchImageLibrary, launchCamera } from "react-native-image-picker";
+import Camera from '../components/Camera';
+import moment from 'moment';
 import storage from '@react-native-firebase/storage';
 import * as Progress from 'react-native-progress';
+import Loader from "./Loader";
 
-const EditProfile = ({ navigation }) => {
+const EditProfile = ({ route, navigation }) => {
 
+    const { user, loadingName, forgotPassword, createUserInFirestore, editProfile, DownloadUserImage, UploadImage } = useContext(UserContext);
     const [newName, setNewName] = useState("");
+    const [newEmail, setNewEmail] = useState("");
     const [birthday, setBirthday] = useState(new Date());
     const [biografi, setBiografi] = useState("");
-    const [selected, setSelected] = useState("");
-    const [image, setImage] = useState(null);
+    const [job, setJob] = useState("");
+    const [imagePath, setImagePath] = useState(null);
+    const [imageUri, setImageUri] = useState('');
     const [uploading, setUploading] = useState(false);
     const [transferred, setTransferred] = useState(0);
-    const [open, setOpen] = useState(false)
+    const [open, setOpen] = useState(false);
+    const [updated, setUpdated] = useState(false);
+    const [visible, setVisible] = useState(false);
+    const [newUrl, setNewUrl] = useState('');
+    const [url, setUrl] = useState('');
+    console.log("user in editprofile::: ", user)
 
-    const { signInUser, user, loadingName, forgotPassword, createUserInFirestore, editProfile } = useContext(UserContext);
+    useEffect(async () => {
+        if (user) {
+            setUrl(user.photoURL)
+        }
+    }, [url, updated])
 
-    useEffect(() => {
+    const uploadProfileToDb = async () => {
+        try {
+            await firestore().collection('users').doc(user.uid).set({
+                displayName: newName,
+                email: newEmail,
+                biography: biografi,
+                birthday: birthday,
+                occupation: job,
+                profileImg: imagePath
+            })
+            await UploadImage(user, imagePath)
+                .then(() => setUpdated(true))
+                .catch(() => console.log("error: ", err.message));
+        } catch (err) {
+            console.log("error: ", err.message);
+        }
+    }
 
-    }, [])
+    const uploadFileToStorage = async () => {
 
-    const selectImage = () => {
+    }
+
+    const openCamera = () => {
         const options = {
-            maxWidth: 2000,
-            maxHeight: 2000,
             storageOptions: {
-                skipBackup: true,
-                path: 'images'
-            }
+                path: 'images',
+                mediaType: 'photo',
+            },
+            includeBase64: true,
         };
-        ImagePicker.showImagePicker(options, response => {
+        launchCamera(options, response => {
+            //console.log("Response URI = ", response.assets[0].uri);
             if (response.didCancel) {
                 console.log('User cancelled image picker');
             } else if (response.error) {
-                console.log('ImagePicker Error: ', response.error);
+                console.log('ImagePicker Error: ', response.error)
             } else if (response.customButton) {
-                console.log('User tapped custom button: ', response.customButton);
+                console.log("User tapped custom button: ", response.customButton);
             } else {
-                const source = { uri: response.uri };
-                console.log(source);
-                setImage(source);
+                //You can also display the image using data:
+                const source = { uri: 'data:image/jpeg;base64,' + response.base64 };
+                setImageUri(source);
+                setImagePath(response.assets[0].uri)
             }
         });
-    };
+    }
 
-    const uploadImage = async () => {
-        const { uri } = image;
-        const filename = uri.substring(uri.lastIndexOf('/') + 1);
-        const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri;
-        setUploading(true);
-        setTransferred(0);
-        const task = storage()
-            .ref(filename)
-            .putFile(uploadUri);
-        // set progress state
-        task.on('state_changed', snapshot => {
-            setTransferred(
-                Math.round(snapshot.bytesTransferred / snapshot.totalBytes) * 10000
-            );
+
+    const openGallery = () => {
+        const options = {
+            storageOptions: {
+                path: 'images',
+                mediaType: 'photo',
+            },
+            includeBase64: true,
+        };
+        launchImageLibrary(options, response => {
+            // console.log("Response = ", response);
+            if (response.didCancel) {
+                console.log('User cancelled image picker');
+            } else if (response.error) {
+                console.log('ImagePicker Error: ', response.error)
+            } else if (response.customButton) {
+                console.log("User tapped custom button: ", response.customButton);
+            } else {
+                //You can also display the image using data:
+                const source = { uri: 'data:image/jpeg;base64,' + response.base64 };
+                setImageUri(source);
+            }
         });
-        try {
-            await task;
-        } catch (e) {
-            console.error(e);
-        }
-        setUploading(false);
-        Alert.alert(
-            'Photo uploaded!',
-            'Your photo has been uploaded to Firebase Cloud Storage!'
-        );
-        setImage(null);
-    };
-
-
+    }
+    if (!url) { return <Loader /> }
     return (
-        <SafeAreaView style={styles.droidSafeArea}>
-            <View style={styles.container}>
-                <View style={styles.header}></View>
-                <Image style={styles.avatar} source={{ uri: 'https://bootdey.com/img/Content/avatar/avatar6.png' }} />
-                <View style={styles.body}>
-                    <View>
-                        <Text style={styles.name}>{user?.email}</Text>
-                        <Text style={styles.name}>{user?.displayName || loadingName}</Text>
-                        <TextInput
-                            placeholder="Edit Display name"
-                            value={newName}
-                            onChangeText={(newName) => setNewName(newName)} />
-                        <TextInput
-                            placeholder="Edit email"
-                            value={newName}
-                            onChangeText={(newName) => setNewName(newName)} />
-                        <TextInput
-                            placeholder="Tell people about yourself!"
-                            value={biografi}
-                            onChangeText={(biografi) => setBiografi(biografi)} />
+        <ScrollView>
+            <SafeAreaView style={styles.droidSafeArea}>
+                <View style={styles.container}>
+                    <View style={styles.header}></View>
+                    <Image style={styles.avatar} source={{ uri: url }} />
+                    <View style={styles.body}>
                         <View>
-                            <SelectList
-                                data={occupation}
-                                setSelected={(val) => setSelected(val)}
-                                onSelect={() => alert(selected)}
-                                save="value" />
-                        </View>
-                        <Button onPress={() => setOpen(true)}>Set your birthday</Button>
-                        <DatePicker
-                            modal
-                            open={open}
-                            mode="date"
-                            date={birthday}
-                            onConfirm={(birthday) => {
-                                setOpen(false)
-                                setBirthday(birthday)
-                            }}
-                            onCancel={() => {
-                                setOpen(false)
-                            }} />
-                    </View>
+                            <Text style={styles.name}>{user?.email}</Text>
+                            <Text style={styles.name}>{user?.displayName || loadingName}</Text>
+                            <TextInput
+                                placeholder="Edit Display name"
+                                value={newName}
+                                onChangeText={(newName) => setNewName(newName)} />
+                            <TextInput
+                                placeholder="Edit email"
+                                value={newEmail}
+                                onChangeText={(newEmail) => setNewEmail(newEmail)} />
+                            <TextInput
+                                placeholder="Tell people about yourself!"
+                                value={biografi}
+                                onChangeText={(biografi) => setBiografi(biografi)} />
+                            <View>
+                                <SelectList
+                                    data={occupation}
+                                    setSelected={(val) => setJob(val)}
+                                    save="value" />
+                            </View>
+                            <Button onPress={() => setOpen(true)}>Set your birthday</Button>
+                            <DatePicker
+                                modal
+                                open={open}
+                                mode="date"
+                                date={birthday}
+                                onConfirm={(birthday) => {
+                                    setOpen(false)
+                                    setBirthday(birthday)
+                                }}
+                                onCancel={() => {
+                                    setOpen(false)
+                                }} />
 
-                    <SafeAreaView style={styles.container}>
-                        <TouchableOpacity style={styles.selectButton} onPress={selectImage}>
-                            <Text style={styles.buttonText}>Pick an image</Text>
-                        </TouchableOpacity>
-                        <View style={styles.imageContainer}>
-                            {image !== null ? (
-                                <Image source={{ uri: image.uri }} style={styles.imageBox} />
-                            ) : null}
-                            {uploading ? (
-                                <View style={styles.progressBarContainer}>
-                                    <Progress.Bar progress={transferred} width={300} />
+                            {/* <TouchableOpacity style={styles.selectButton} onPress={selectImage}>
+                                <Text style={styles.buttonText}>Pick an image</Text>
+                            </TouchableOpacity> */}
+
+                            <TouchableOpacity style={styles.uploadButton}
+                                onPress={() => setVisible(true)}>
+                                <Text style={styles.buttonText}>Change your profile picture</Text></TouchableOpacity>
+                            <Modal
+                                visible={visible}
+                                style={styles.modal}
+                                transparent={true}
+                                onRequestClose={() => {
+                                    Alert.alert("Modal has been closed.");
+                                    setVisible(!visible);
+                                }}
+                            >
+
+                                <View style={styles.modalContent}>
+                                    <TouchableOpacity style={styles.uploadButton}
+                                        // onPress={() => { navigation.navigate('Camera', { from: "Edit Profile" }); setVisible(false) }}>
+                                        onPress={openCamera}>
+                                        <Text style={styles.buttonText}>Open Camera</Text></TouchableOpacity>
+                                    {/* <TouchableOpacity style={styles.uploadButton}
+                                        onPress={() => navigation.navigate("HomeTabAuthed", {
+                                            screen: "Profile",
+                                            params: { prase: "HELLO" }
+                                        })}>
+                                        <Text style={styles.buttonText}>Upload Image</Text></TouchableOpacity> */}
+                                    <TouchableOpacity style={styles.uploadButton}
+                                        onPress={openGallery}>
+                                        <Text style={styles.buttonText}>Open Gallery</Text></TouchableOpacity>
+                                    <Button style={{ marginTop: '10%' }} onPress={() => setVisible(false)}>Close</Button>
                                 </View>
-                            ) : (
-                                <TouchableOpacity style={styles.uploadButton} onPress={uploadImage}>
-                                    <Text style={styles.buttonText}>Upload image</Text>
-                                </TouchableOpacity>
-                            )}
-                        </View>
-                    </SafeAreaView>
+                            </Modal>
+                            <View>
 
-                    <View >
-                        <Button
-                            onPress={() =>
-                                editProfile(newName, biografi, selected, birthday)
-                            }>
-                            Save changes
-                        </Button>
+
+
+                                {/* {image !== null ? (
+                                    <Image source={{ uri: image.uri }} style={styles.imageBox} />
+                                ) : null}
+                                {uploading ? (
+                                    <View style={styles.progressBarContainer}>
+                                        <Progress.Bar progress={transferred} width={300} />
+                                    </View>
+                                ) : (
+                                    <TouchableOpacity style={styles.uploadButton} onPress={uploadImage}>
+                                        <Text style={styles.buttonText}>Upload image</Text>
+                                    </TouchableOpacity>
+                                )} */}
+
+
+                                <Button
+                                    onPress={() =>
+                                        uploadProfileToDb(newName, biografi, job, birthday)
+                                    }>
+                                    Save changes
+                                </Button>
+                                <Button
+                                    onPress={() =>
+                                        DownloadUserImage(user)
+                                    }>
+                                    Get URL
+                                </Button>
+                            </View>
+                        </View>
                     </View>
                 </View>
-            </View>
-        </SafeAreaView>
+            </SafeAreaView>
+        </ScrollView>
     )
 }
 
@@ -180,6 +254,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center'
     },
+    textStyle: {
+        padding: 10,
+        color: 'black',
+    },
     uploadButton: {
         borderRadius: 5,
         width: 150,
@@ -188,6 +266,24 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         marginTop: 20
+    },
+    modalContent: {
+        width: 350,
+        height: 250,
+        marginTop: '50%',
+        borderColor: '#ccc',
+        borderWidth: 1,
+        borderStyle: 'solid',
+        backgroundColor: 'white',
+        elevation: 20,
+        padding: 20,
+        borderRadius: 8,
+        alignItems: 'center',
+        alignSelf: 'center',
+        justifyContent: 'center'
+    },
+    closingTag: {
+
     },
     buttonText: {
         color: 'white',
@@ -205,6 +301,11 @@ const styles = StyleSheet.create({
     imageBox: {
         width: 300,
         height: 300
+    },
+    imageStyle: {
+        width: 200,
+        height: 200,
+        margin: 5,
     },
     header: {
         backgroundColor: "#00BFFF",
@@ -231,7 +332,6 @@ const styles = StyleSheet.create({
         marginLeft: 20,
         marginBottom: 40,
     },
-
     avatar: {
         width: 130,
         height: 130,

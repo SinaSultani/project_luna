@@ -20,7 +20,6 @@ function SignIn({ navigation }) {
     const [password, setPassword] = useState('');
 
     const { signInUser, user, initializing, forgotPassword } = useContext(UserContext);
-
     // useEffect(() => {
     //     // console.log("changes in initializing in SignIn; ", initializing)
     // }, [initializing])
@@ -77,7 +76,6 @@ function SignIn({ navigation }) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#fff",
         alignItems: "center",
         justifyContent: "center",
     },
@@ -94,7 +92,6 @@ const styles = StyleSheet.create({
         width: "70%",
         height: 45,
         marginBottom: 20,
-
         alignItems: "center",
     },
 
