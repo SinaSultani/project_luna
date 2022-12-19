@@ -1,6 +1,6 @@
 
 import React, { useState, useContext, useRef} from 'react';
-import { SafeAreaView, View, StyleSheet, StatusBar, Text, Pressable, Image, Modal} from "react-native"
+import { SafeAreaView, View, StyleSheet, StatusBar, Text, Pressable, Image, Modal, TouchableOpacity} from "react-native"
 import { UserContext } from '../providers/UserProvider';
 import Loader from './Loader';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
@@ -143,7 +143,6 @@ if (!user && isLoading) return <Loader/>
             <Text style={styles.title}> Welcome mister  </Text>
             <View >
               <Text onLongPress={toggleModal}> IMAGE </Text>
-              <MaterialIcons name={name} size={44} color="white" />
             { (modal && user) ? <Modal 
                 visible={modal}
                 transparent={true}
@@ -158,7 +157,7 @@ if (!user && isLoading) return <Loader/>
               </Modal> : null }
              {imagePreview && 
              <View style={{width: 400, opacity: 1, backgroundColor: "fff", flexDirection: "row"}}>
-              <Image style={{width: 100, height: 100}} source={{uri: imagePath }}/>
+              <Image  style={{width: 100, height: 100}} source={{uri: imagePath }}/>
               <Text style={{color: "black"}}
                 onPress={handleImageConfirm}
                >OK</Text>
@@ -167,7 +166,12 @@ if (!user && isLoading) return <Loader/>
                { runGallery && <Text onPress={() => {setRunGallery(false); openGallery()}}> Re-Select</Text> }
              </View>
              }
-            {(!imagePreview && user) ? <Image style={{width: 200, height: 200}} source={{uri: imagePath || profilePicture   }}/>: null}
+            {(!imagePreview && user) ?
+                  <Image
+                    style={{width: 200, height: 200}} 
+                    source={{uri: imagePath || profilePicture   }}
+                  />
+              : null}
           </View>
             <Text style={[styles.title, {fontSize: 25} ]}>{user?.email}</Text>
             <Text style={[styles.title, {fontSize: 25} ]}>{dob}</Text>

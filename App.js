@@ -26,56 +26,62 @@ import TermsComplete from './screens/TermsComplete';
 import Profile from './screens/Profile';
 import Loader from './screens/Loader';
 import Settings from './screens/Settings';
+import MessageView from './screens/MessageView'
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import { Icon } from 'react-native-vector-icons'
- 
+import Messages from './screens/Messages';
+
 const Tab = createBottomTabNavigator(); // for bottom navigation
 
 const Stack = createStackNavigator();
 const RegisterStack = createStackNavigator();
 const BalanceStack = createStackNavigator();
 const TermsStack = createStackNavigator();
+const MessageStack = createStackNavigator();
+
+
+
 
 
 const HomeTab = () => {
-
-  // const screenOptions = (route, color) => {
-  //   let iconName;
-  
-  //   switch (route.name) {
-  //     case 'Profile':
-  //       iconName = 'account_circle';
-  //       color = "red"
-  //       break;
-  //     case 'Terms':
-  //       iconName = 'segment';
-  //       color = "red"
-  //       break;
-  //     default:
-  //       break;
-  //   }
-  
-  //   return <Icon name={iconName} color={color} size={24} />;
-
-  // };
-  
   return (
-    <Tab.Navigator 
-      screenOptions={{ headerShown: false }}
-    // screenOptions={({route, color}) => ({
-    //   tabBarIcon: (props) => screenOptions(route, color, props)
-    // })}
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        headerShown: false,
+        tabBarIcon: ({ focused, color, size },) => {
+          let iconName;
+          let rn = route.name;
+          switch (rn) {
+            case "Profile":
+              iconName = 'person';
+              break;
+            case "Terms":
+              iconName = 'notes';
+              break;
+            case "Messages":
+              iconName = 'message';
+              break;
+            default:
+              iconName = '';
+          }
+          return <MaterialIcons name={iconName} size={20} color={color} />
+        },
+        "tabBarActiveTintColor": 'tomato',
+        "tabBarInactiveTintColor": 'grey',
+        "tabBarLabelStyle": { "paddingBottom": 10, "fontSize": 10 },
+        "tabBarStyle": { "padding": 10, "height": 55 }
+      })
+      }
     >
-    
-       {/* <Tab.Screen
-        name="Sign Up/In"
-        component={RegisterStackScreen}
-      /> */}
-       <Tab.Screen
+      <Tab.Screen
         name="Profile"
         component={BalanceStackScreen}
       />
-     <Tab.Screen
+      <Tab.Screen
+        name="Messages"
+        component={MessagesStackScreen}
+      />
+      <Tab.Screen
         name="Terms"
         component={TermsStackScreen}
       />
@@ -99,11 +105,6 @@ function RegisterStackScreen() {
         name="Sign In"
         component={SignIn}
       />
-       {/* <RegisterStack.Screen 
-        screenOptions={{ headerShown: false }}
-        name="Profile"
-        component={Profile}
-      /> */}
     </RegisterStack.Navigator>
   );
 };
@@ -156,6 +157,24 @@ function TermsStackScreen() {
     </TermsStack.Navigator>
   );
 };
+
+function MessagesStackScreen() {
+  return (
+    <MessageStack.Navigator
+      screenOptions={{headerShown: false}}
+    >
+      <MessageStack.Screen
+        name="MessageView"
+        component={MessageView}
+      />
+      <MessageStack.Screen
+      
+        name="Message"
+        component={Messages}
+      />
+    </MessageStack.Navigator>
+  )
+}
 
 const MyNavigator = () => {
 const { user } = useContext(UserContext)
