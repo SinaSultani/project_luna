@@ -3,6 +3,7 @@ import { SafeAreaView, Text, View, Image, StyleSheet, Switch, TextInput} from 'r
 import { UserContext } from '../providers/UserProvider'
 import firestore from '@react-native-firebase/firestore'
 
+
 const Settings = () => {
 
 const {  windowHeight, windowWidth, userEmail, setUserEmail, title, setTitle, name, setName, lastName, 
@@ -11,7 +12,6 @@ const [ edit, setEdit ] = useState(false)
 const [ isEnabled, setIsEnabled ] = useState(false)
 
 const currentUserId = firestore().collection('users').doc(firestoreUID)
-console.log("dob", dob)
 // making a query to get user details from firestore
 let currentUserData;
 firestore()

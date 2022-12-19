@@ -60,7 +60,7 @@ useEffect(() => {
     console.log("new firebase call in useEffect")
     });
 }
-   }, [userEmail, profilePicture])
+   }, [profilePicture, userEmail])
 // ovo user email nije dobar parametar jer ako se izlogujemo pa opet ulogujemo ostaju stari podatci valjda
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -119,7 +119,6 @@ const signIn = async () => {
             const userProfilePicture = userDoc.get('profileImagePath');
 
             // const userProfilePicture = await firestore().collection('users').doc(user.uid).documentSnapshot.get('profileImagePath')
-            console.log("user PP ", userProfilePicture)
             setProfilePicture(userProfilePicture)
         }
     } catch (err) {
@@ -174,7 +173,7 @@ const signOut = async () => {
         profilePicture,
     
     }
-console.log(profilePicture)
+
     return (
         <UserContext.Provider value={thisUser}>
             {children}

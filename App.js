@@ -26,6 +26,8 @@ import TermsComplete from './screens/TermsComplete';
 import Profile from './screens/Profile';
 import Loader from './screens/Loader';
 import Settings from './screens/Settings';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
+import { Icon } from 'react-native-vector-icons'
  
 const Tab = createBottomTabNavigator(); // for bottom navigation
 
@@ -36,8 +38,35 @@ const TermsStack = createStackNavigator();
 
 
 const HomeTab = () => {
+
+  // const screenOptions = (route, color) => {
+  //   let iconName;
+  
+  //   switch (route.name) {
+  //     case 'Profile':
+  //       iconName = 'account_circle';
+  //       color = "red"
+  //       break;
+  //     case 'Terms':
+  //       iconName = 'segment';
+  //       color = "red"
+  //       break;
+  //     default:
+  //       break;
+  //   }
+  
+  //   return <Icon name={iconName} color={color} size={24} />;
+
+  // };
+  
   return (
-    <Tab.Navigator screenOptions={{ headerShown: false }}>
+    <Tab.Navigator 
+      screenOptions={{ headerShown: false }}
+    // screenOptions={({route, color}) => ({
+    //   tabBarIcon: (props) => screenOptions(route, color, props)
+    // })}
+    >
+    
        {/* <Tab.Screen
         name="Sign Up/In"
         component={RegisterStackScreen}

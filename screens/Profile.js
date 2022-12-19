@@ -6,7 +6,9 @@ import Loader from './Loader';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { firebase } from '@react-native-firebase/firestore';
 import firestore from '@react-native-firebase/firestore';
-
+import storage from '@react-native-firebase/storage';
+// import { Icon } from 'react-native-vector-icons'
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 
 
@@ -18,6 +20,7 @@ const Profile = ({ navigation}) => {
   const [imageUri, setImageUri] = useState("");
   const [ imagePath, setImagePath] = useState()
   const [ imagePathSecond, setImagePathSecond ] = useState()
+  const [ runGallery, setRunGallery ] = useState(false)
   const [ imagePreview, setImagePreview ] = useState(false)
 
 
@@ -44,6 +47,7 @@ const onModalClose = () => {
 }
 
 const openGallery = () => {
+  setRunGallery(true)
   const options = {
       storageOptions: {
           path: 'images',
@@ -88,11 +92,12 @@ const openCamera = async () => {
           console.log("User tapped custom button: ", response.customButton);
       } else {
           
-        setImagePreview(true)
-        reference.putFile(pathToFile);
-        const source = { uri: 'data:image/jpeg;base64,' + response.base64 };
-        setImageUri(pathToFile);
-        setImagePath(response.assets[0].uri)
+        setImagePreview(true)  
+        setImagePath(response.assets[0].uri);
+        // reference.putFile(pathToFile);
+        // const source = { uri: 'data:image/jpeg;base64,' + response.base64 };
+        // setImageUri(pathToFile);
+        // setImagePath(response.assets[0].uri)
          
       }
   });
@@ -100,21 +105,25 @@ const openCamera = async () => {
 }
 
 const handleImageCancle = () => {
-  if(imagePath) {
-   setImagePath(imagePathSecond)
-  } else (
-    setImagePath(null)
-    )
+  setImagePath(null)
+  // if(imagePath) {
+  //  setImagePath(imagePathSecond)
+  // } else (
+  //   setImagePath(null)
+  //   )
 }
 
+// adds image to storage
 const handleImageConfirm = () => {
   setImagePreview(false)
-  imagePathSecond && setImagePath(imagePathSecond)
+  setRunGallery(false)
+  // imagePathSecond && setImagePath(imagePathSecond)
 
   // creates a folder with user name user.uid in fb storage and pushes pictures in the folder
   const storageRef = firebase.storage().ref(user.uid);
   const imageRef = storageRef.child(imagePath);
   imageRef.putFile(imagePath).then((snapshot) => {
+    console.log("snapshot", snapshot)
   });
 
   // creates profile image path in firestore so we can access the specific image from users image folder
@@ -126,7 +135,7 @@ const handleImageConfirm = () => {
       profileImagePath: imagePath,
   })
 }
-
+const name = "360"
 if (!user && isLoading) return <Loader/>
     return (
       <SafeAreaView style={{ flex: 1}}>
@@ -134,6 +143,7 @@ if (!user && isLoading) return <Loader/>
             <Text style={styles.title}> Welcome mister  </Text>
             <View >
               <Text onLongPress={toggleModal}> IMAGE </Text>
+              <MaterialIcons name={name} size={44} color="white" />
             { (modal && user) ? <Modal 
                 visible={modal}
                 transparent={true}
@@ -152,7 +162,9 @@ if (!user && isLoading) return <Loader/>
               <Text style={{color: "black"}}
                 onPress={handleImageConfirm}
                >OK</Text>
-               {/* <Text onPress={() => {handleImageCancle(); setImagePreview(false)}}> Cancle</Text> */}
+               <Text onPress={() => {handleImageCancle(); setImagePreview(false)}}> Cancle</Text>
+               { !runGallery && <Text onPress={openCamera}> Retake</Text> }
+               { runGallery && <Text onPress={() => {setRunGallery(false); openGallery()}}> Re-Select</Text> }
              </View>
              }
             {(!imagePreview && user) ? <Image style={{width: 200, height: 200}} source={{uri: imagePath || profilePicture   }}/>: null}
