@@ -1,0 +1,15 @@
+LAST DONE:
+On friday 16/12: Photos are being uploaded to storage in separate folders by user.
+Seems everything works fine, maybe to try on real device to see if it is slow.
+
+TODO: 
+
+1. Check if "Take Photo" function works and to make it save to database if we want;
+
+2. Set up some nice icons for the bottom menu;
+
+3. Explore how to send DM to other users via firebase;
+
+4. Check with Sina what he has done in his app to get some ideas.
+
+5. Separate firebase stuff to separate provider??

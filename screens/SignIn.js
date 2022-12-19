@@ -2,6 +2,7 @@ import React , {useCallback, useEffect, useState, useContext} from 'react';
 import { SafeAreaView, Text, View, Image, StyleSheet, Button, TextInput, Alert} from "react-native"
 import auth, { firebase } from '@react-native-firebase/auth';
 import { UserContext } from '../providers/UserProvider';
+import Loader from './Loader'
 
 
 import { getDatabase } from "firebase/database";
@@ -12,41 +13,12 @@ import firestore from '@react-native-firebase/firestore';
 
 export const SignIn = ({ navigation }) => {
     const [ logIn, setLogIn ] = useState(false)
-    const [ initializing, setInitializing ] = useState(true)
-    const { email, setEmail, password, setPassword,signIn, user, setUser, setLoggedIn, setFirestoreUID } = useContext(UserContext)
+    // const [ initializing, setInitializing ] = useState(true)
+    const { email, setEmail, password, setPassword,signIn,isLoading, user,initializing, setUser, setLoggedIn, setFirestoreUID } = useContext(UserContext)
     const { users } = useContext(UserContext)
 
-//     const onAuthStateChanged = (user) => {
-//         setUser(user);
-//         if (initializing) setInitializing(false);
-//     };
 
-//     useEffect(() => {
-//         const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
-//         return subscriber;
-//     }, [])
-
-//     const signIn = async () => {
-//     try {
-//         if (email === "" || password === "") {
-//            return Alert.alert("Email or password cannot be empty.")
-            
-//         }
-//         const { user } = await auth().signInWithEmailAndPassword(email, password);
-        
-//         onAuthStateChanged(user)
-        
-//         // if (user) {
-//         //     console.log("auth UID", user.uid)
-//         // }
-//         setFirestoreUID(user.uid)
-//         navigation.navigate('Profile');
-//         setLoggedIn(true)
-
-//     } catch (err) {
-//         console.log("Not signed in")
-//     }
-//   }
+    if (isLoading) return <Loader/>
 
     return (
       

@@ -6,12 +6,12 @@ import  { UserContext } from '../providers/UserProvider'
 const Balance = ( {navigation} ) => {
 
     const toTopUp = () => {
-        navigation.navigate('Balance', {
+        navigation.navigate('Profile', {
             screen: 'TopUp'
         })
     }
 
-    const { email, user, balance, loggedIn } = useContext(UserContext);
+    const { userEmail, user, dbBalance, loggedIn } = useContext(UserContext);
     
     
     return (
@@ -26,7 +26,7 @@ const Balance = ( {navigation} ) => {
                     :  
                 <View>
                     <Text>
-                        Hello {email}, your current balance is {balance} kr.
+                        Hello {userEmail}, your current balance is {dbBalance} kr.
                         If you want to top up your account, please tap here.
                     </Text>
                     <Button

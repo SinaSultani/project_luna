@@ -2,6 +2,7 @@ import React, { useState, useContext, useEffect } from 'react';
 import { SafeAreaView, View, Button, StyleSheet, TextInput, Text, Image} from "react-native"
 import { UserContext } from '../providers/UserProvider';
 
+
 const RegisterUser = ( { navigation} ) => {
 
 const [ registered, setRegistered ] = useState(false)
@@ -9,40 +10,6 @@ const [ initializing, setInitializing ] = useState(true)
 
 const { email, setEmail, password, setPassword, createUser } = useContext(UserContext)
 
-
-// const onAuthStateChanged = (user) => {
-//     setUser(user);
-//     if (initializing) setInitializing(false);
-// };
-
-// useEffect(() => {
-//     const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
-//     return subscriber;
-// }, [])
- 
-
-// const createUser = async () => {
-// try {
-//     const { user } = await auth().createUserWithEmailAndPassword(email, password);
-//     onAuthStateChanged(user)
-   
-//    if (user) {
-//     navigation.navigate('Profile')
-//     setLoggedIn(true)
-//     setFirestoreUID(user.uid)
-//     firestore().collection('users')
-//     .doc(user.uid)
-//     .set({
-//          email: email,
-//          name: "",
-//          balance: 0,
-//      })
-//     }
-
-// } catch (err) {
-//     console.log("NOPE, NOT CREATED")
-// }
-// }
 
 return (
         <SafeAreaView style={styles.container}>

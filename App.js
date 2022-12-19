@@ -15,7 +15,7 @@ import {
   StyleSheet,
   useColorScheme,
 } from 'react-native';
-
+import { Text } from 'react-native'
 import SignIn from './screens/SignIn';
 import RegisterUser from './screens/RegisterUser';
 import Balance from './screens/Balance';
@@ -24,6 +24,8 @@ import TopUp from './screens/TopUp';
 import CompleteTopUp from './screens/CompleteTopUp';
 import TermsComplete from './screens/TermsComplete';
 import Profile from './screens/Profile';
+import Loader from './screens/Loader';
+import Settings from './screens/Settings';
  
 const Tab = createBottomTabNavigator(); // for bottom navigation
 
@@ -41,7 +43,7 @@ const HomeTab = () => {
         component={RegisterStackScreen}
       /> */}
        <Tab.Screen
-        name="Balance"
+        name="Profile"
         component={BalanceStackScreen}
       />
      <Tab.Screen
@@ -82,11 +84,13 @@ function BalanceStackScreen() {
     <BalanceStack.Navigator
   
     > 
-     <RegisterStack.Screen 
+     <BalanceStack.Screen 
         screenOptions={{ headerShown: false }}
-        name="Profile"
-        component={Profile}
+        name="Profilee"
+        component={Profile} 
+        options={{ title: 'My Profile',  }}
       />
+     
       <BalanceStack.Screen 
         name="Your Balance"
         component={Balance}
@@ -98,6 +102,11 @@ function BalanceStackScreen() {
       <BalanceStack.Screen
         name= "CompleteTopUp"
         component={CompleteTopUp}
+      />
+      <BalanceStack.Screen 
+        name="Settings"
+        component={Settings}  
+        options={{ title: "Profile Settings"}}
       />
     </BalanceStack.Navigator>
   );
@@ -121,8 +130,8 @@ function TermsStackScreen() {
 
 const MyNavigator = () => {
 const { user } = useContext(UserContext)
-
-  if(!user) {
+// console.log("In app js", user)
+  if(!user) { return ( 
     <Stack.Navigator>
   
     <Stack.Group screenOptions={{ headerShown: false }}>
@@ -130,8 +139,8 @@ const { user } = useContext(UserContext)
     </Stack.Group>
 
   </Stack.Navigator>
-  }
-  else {
+  ) }
+  return (
     <Stack.Navigator>
 
     <Stack.Group screenOptions={{ headerShown: false }}>
@@ -144,8 +153,9 @@ const { user } = useContext(UserContext)
     </Stack.Group>
 
   </Stack.Navigator>
-  }
+ ) 
 }
+
 
 
 const App = ( {navigation} ) => {
@@ -158,23 +168,11 @@ const App = ( {navigation} ) => {
   };
 
   return (
-    <UserProvider>
-      <NavigationContainer>
-        
-      
-         <MyNavigator />
-   {/*       <Stack.Group screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="HomeTab" component={HomeTab} />
-          </Stack.Group>
-
-          <Stack.Group screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="Main" component={RegisterStackScreen} />
-            <Stack.Screen name="Balance" component={BalanceStackScreen} />
-            <Stack.Screen name="Terms of use" component={TermsStackScreen} />
-          </Stack.Group> */}
-     
-      </NavigationContainer>
-    </UserProvider>
+    <NavigationContainer>
+      <UserProvider>
+        <MyNavigator />
+      </UserProvider>
+    </NavigationContainer>
   );
 };
 

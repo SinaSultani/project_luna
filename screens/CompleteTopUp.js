@@ -6,7 +6,7 @@ const CompleteTopUp = () => {
     
   return (
     <Text>
-        TOP UP HERE!
+        TOP UP SUCCESS!
     </Text>
   )
 }
