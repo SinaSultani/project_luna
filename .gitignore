@@ -57,3 +57,6 @@ buck-out/
 
 # CocoaPods
 /ios/Pods/
+
+# Ignore Java heap dump files
+android/java_pid10304.hprof
