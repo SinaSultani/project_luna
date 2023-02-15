@@ -1,6 +1,14 @@
-apply plugin: "com.android.application"
-
 import com.android.build.OutputFile
+
+// project.ext.envConfigFiles = [
+//   bosi: ".env.bosi"
+// ];
+
+apply plugin: "com.android.application"
+apply plugin: "com.google.gms.google-services"
+//apply from: project(":react-native-config").projectDir.getPath() + "/dotenv.gradle"
+
+
 
 /**
  * The react.gradle file registers a task for each build variant (e.g. bundleDebugJsAndAssets
@@ -25,6 +33,8 @@ import com.android.build.OutputFile
  *
  *   // whether to bundle JS and assets in debug mode
  *   bundleInDebug: false,
+ *
+ *
  *
  *   // whether to bundle JS and assets in release mode
  *   bundleInRelease: true,
@@ -82,7 +92,7 @@ project.ext.react = [
 ]
 
 apply from: "../../node_modules/react-native/react.gradle"
-
+apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
 /**
  * Set this to true to create two separate APKs instead of one:
  *   - An APK that only works on ARM devices
@@ -134,8 +144,10 @@ android {
         applicationId "com.project_luna"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
+        missingDimensionStrategy 'react-native-camera', 'general' /* insert this line */
         versionCode 1
         versionName "1.0"
+        //resValue "string", "build_config_package", "com.myapp"
     }
     splits {
         abi {
@@ -184,6 +196,9 @@ android {
 }
 
 dependencies {
+        implementation platform('com.google.firebase:firebase-bom:31.0.3')
+        implementation 'com.google.firebase:firebase-auth'
+        implementation 'com.google.android.gms:play-services-auth:20.3.0'
     implementation fileTree(dir: "libs", include: ["*.jar"])
     //noinspection GradleDynamicVersion
     implementation "com.facebook.react:react-native:+"  // From node_modules
