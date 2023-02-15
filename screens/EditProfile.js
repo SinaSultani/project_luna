@@ -38,14 +38,10 @@ const EditProfile = ({ route, navigation }) => {
     const [job, setJob] = useState("");
     const [imagePath, setImagePath] = useState(null);
     const [imageUri, setImageUri] = useState('');
-    const [uploading, setUploading] = useState(false);
-    const [transferred, setTransferred] = useState(0);
     const [open, setOpen] = useState(false);
     const [updated, setUpdated] = useState(false);
     const [visible, setVisible] = useState(false);
-    const [newUrl, setNewUrl] = useState('');
     const [url, setUrl] = useState('');
-    console.log("user in editprofile::: ", user)
 
     useEffect(async () => {
         if (user) {
@@ -55,7 +51,10 @@ const EditProfile = ({ route, navigation }) => {
 
     const uploadProfileToDb = async () => {
         try {
+            const userDoc = await firestore().collection('users').doc(user.uid).get();
+            const existingData = userDoc.data();
             await firestore().collection('users').doc(user.uid).set({
+                ...existingData,
                 displayName: newName,
                 email: newEmail,
                 biography: biografi,
@@ -71,10 +70,6 @@ const EditProfile = ({ route, navigation }) => {
         }
     }
 
-    const uploadFileToStorage = async () => {
-
-    }
-
     const openCamera = () => {
         const options = {
             storageOptions: {
@@ -84,7 +79,6 @@ const EditProfile = ({ route, navigation }) => {
             includeBase64: true,
         };
         launchCamera(options, response => {
-            //console.log("Response URI = ", response.assets[0].uri);
             if (response.didCancel) {
                 console.log('User cancelled image picker');
             } else if (response.error) {
@@ -92,9 +86,9 @@ const EditProfile = ({ route, navigation }) => {
             } else if (response.customButton) {
                 console.log("User tapped custom button: ", response.customButton);
             } else {
-                //You can also display the image using data:
                 const source = { uri: 'data:image/jpeg;base64,' + response.base64 };
                 setImageUri(source);
+                console.log("Imagepath: ", response.assets[0].uri)
                 setImagePath(response.assets[0].uri)
             }
         });
@@ -110,7 +104,6 @@ const EditProfile = ({ route, navigation }) => {
             includeBase64: true,
         };
         launchImageLibrary(options, response => {
-            // console.log("Response = ", response);
             if (response.didCancel) {
                 console.log('User cancelled image picker');
             } else if (response.error) {
@@ -166,11 +159,6 @@ const EditProfile = ({ route, navigation }) => {
                                 onCancel={() => {
                                     setOpen(false)
                                 }} />
-
-                            {/* <TouchableOpacity style={styles.selectButton} onPress={selectImage}>
-                                <Text style={styles.buttonText}>Pick an image</Text>
-                            </TouchableOpacity> */}
-
                             <TouchableOpacity style={styles.uploadButton}
                                 onPress={() => setVisible(true)}>
                                 <Text style={styles.buttonText}>Change your profile picture</Text></TouchableOpacity>
@@ -186,15 +174,8 @@ const EditProfile = ({ route, navigation }) => {
 
                                 <View style={styles.modalContent}>
                                     <TouchableOpacity style={styles.uploadButton}
-                                        // onPress={() => { navigation.navigate('Camera', { from: "Edit Profile" }); setVisible(false) }}>
                                         onPress={openCamera}>
                                         <Text style={styles.buttonText}>Open Camera</Text></TouchableOpacity>
-                                    {/* <TouchableOpacity style={styles.uploadButton}
-                                        onPress={() => navigation.navigate("HomeTabAuthed", {
-                                            screen: "Profile",
-                                            params: { prase: "HELLO" }
-                                        })}>
-                                        <Text style={styles.buttonText}>Upload Image</Text></TouchableOpacity> */}
                                     <TouchableOpacity style={styles.uploadButton}
                                         onPress={openGallery}>
                                         <Text style={styles.buttonText}>Open Gallery</Text></TouchableOpacity>
@@ -202,23 +183,6 @@ const EditProfile = ({ route, navigation }) => {
                                 </View>
                             </Modal>
                             <View>
-
-
-
-                                {/* {image !== null ? (
-                                    <Image source={{ uri: image.uri }} style={styles.imageBox} />
-                                ) : null}
-                                {uploading ? (
-                                    <View style={styles.progressBarContainer}>
-                                        <Progress.Bar progress={transferred} width={300} />
-                                    </View>
-                                ) : (
-                                    <TouchableOpacity style={styles.uploadButton} onPress={uploadImage}>
-                                        <Text style={styles.buttonText}>Upload image</Text>
-                                    </TouchableOpacity>
-                                )} */}
-
-
                                 <Button
                                     onPress={() =>
                                         uploadProfileToDb(newName, biografi, job, birthday)

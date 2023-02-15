@@ -31,6 +31,7 @@ import {
 } from 'react-native/Libraries/NewAppScreen';
 
 //Screens
+import FriendRequestsScreen from './screens/FriendRequests';
 import SignInScreen from './screens/SignIn';
 import LibraryScreen from './screens/Library';
 import SettingsScreen from './screens/Settings';
@@ -38,7 +39,10 @@ import SearchScreen from './screens/Search';
 import TermsScreen from './screens/Terms';
 import RegisterScreen from './screens/RegisterUser';
 import FeedScreen from './screens/Feed';
+import MainFeedScreen from './screens/MainFeed';
 import ProfileScreen from './screens/Profile';
+import AllChatScreen from './screens/AllChats';
+import ChatRoom from './screens/ChatRoom';
 import ChangeProfilePictureScreen from './screens/ChangeProfilePicture';
 import EditProfileScreen from './screens/EditProfile';
 
@@ -53,6 +57,7 @@ import { DownloadUserImage } from './context/UserProvider';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
+const FriendRequestsStack = createStackNavigator();
 const SignInStack = createStackNavigator();
 const TermsStack = createStackNavigator();
 const RegisterStack = createStackNavigator();
@@ -63,6 +68,7 @@ const SearchStack = createStackNavigator();
 const SettingsStack = createStackNavigator();
 const LibraryStack = createStackNavigator();
 const ProfileStack = createStackNavigator();
+const ChatStack = createStackNavigator();
 const EditProfileStack = createStackNavigator();
 
 //Screen names for HomeTab not authed
@@ -71,11 +77,14 @@ const registerName = 'Register';
 const termsName = 'Terms';
 
 //Screen namesfor HomeTab authed
+const friendsName = 'FriendRequests';
 const settingsName = 'Settings';
 const searchName = 'Search';
 const libraryName = 'Library';
 const feedName = 'Feed';
+const mainFeedName = 'MainFeed';
 const profileName = 'Profile';
+const chatName = 'Chat';
 
 const HomeTabNotAuthed = () => {
   const { user, logoutUser, loadingName } = useContext(UserContext);
@@ -98,7 +107,7 @@ const HomeTabNotAuthed = () => {
           }
           return <MaterialIcons name={iconName} size={20} color={color} />;
         },
-        "tabBarActiveTintColor": 'tomato',
+        "tabBarActiveTintColor": '#398378',
         "tabBarInactiveTintColor": 'grey',
         "tabBarLabelStyle": { "paddingBottom": 10, "fontSize": 10 },
         "tabBarStyle": { "padding": 10, "height": 70 }
@@ -130,16 +139,18 @@ const HomeTabAuthed = () => {
       setUrl(user.photoURL)
     }
   }, [url])
-  console.log("url in app: ", url)
+  // console.log("url in app: ", url)
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
           let rn = route.name;
-
-          if (rn === libraryName) {
-            iconName = 'library-books';
+          if (rn === friendsName) {
+            iconName = 'group';
+          }
+          else if (rn === chatName) {
+            iconName = 'chat';
           }
           else if (rn === feedName) {
             iconName = 'article';
@@ -160,7 +171,7 @@ const HomeTabAuthed = () => {
           }
           return <MaterialIcons name={iconName} size={20} color={color} />
         },
-        "tabBarActiveTintColor": 'tomato',
+        "tabBarActiveTintColor": '#398378',
         "tabBarInactiveTintColor": 'grey',
         "tabBarLabelStyle": { "paddingBottom": 10, "fontSize": 10 },
         "tabBarStyle": { "padding": 10, "height": 55 }
@@ -171,9 +182,13 @@ const HomeTabAuthed = () => {
         options={{ headerShown: false }}
         component={FeedStackScreen} />
       <Tab.Screen
-        name={libraryName}
+        name={friendsName}
         options={{ headerShown: false }}
-        component={LibraryStackScreen} />
+        component={FriendRequestsStackScreen} />
+      <Tab.Screen
+        name={chatName}
+        options={{ headerShown: false }}
+        component={ChatStackScreen} />
       <Tab.Screen
         name={searchName}
         options={{ headerShown: false }}
@@ -187,6 +202,18 @@ const HomeTabAuthed = () => {
         options={{ headerShown: false }}
         component={ProfileStackScreen} />
     </Tab.Navigator >
+  )
+}
+
+function FriendRequestsStackScreen() {
+  return (
+    <FriendRequestsStack.Navigator>
+      <FriendRequestsStack.Screen
+        name="The FriendRequest"
+        options={{ headerShown: false }}
+        component={FriendRequestsScreen}
+      />
+    </FriendRequestsStack.Navigator>
   )
 }
 
@@ -217,6 +244,10 @@ function FeedStackScreen() {
   return (
     <FeedStack.Navigator>
       <FeedStack.Screen
+        name="The Main Feed"
+        options={{ headerShown: false }}
+        component={MainFeedScreen} />
+      <FeedStack.Screen
         name="Another Feed"
         options={{ headerShown: false }}
         component={FeedScreen} />
@@ -244,6 +275,22 @@ function SettingsStackScreen() {
         component={SettingsScreen}
       />
     </SettingsStack.Navigator>
+  )
+}
+
+function ChatStackScreen() {
+  return (
+    <ChatStack.Navigator>
+      <ChatStack.Screen
+        name="All Chats"
+        options={{ headerShown: false, }}
+        component={AllChatScreen}
+      />
+      <ChatStack.Screen
+        name="Chat room"
+        component={ChatRoom}
+      />
+    </ChatStack.Navigator>
   )
 }
 
@@ -366,6 +413,8 @@ const Navigator = ({ navigation }) => {
         <Stack.Screen name="Feed" component={FeedStackScreen} />
         <Stack.Screen name="Edit Profile" component={EditProfileStackScreen} />
         <Stack.Screen name="Camera" component={Camera} />
+        <Stack.Screen name='AllChats' component={AllChatScreen} />
+        <Stack.Screen name='ChatRoom' component={ChatRoom} />
         <Stack.Screen name="ChangeProfilePic" component={ChangeProfilePictureStackScreen} />
       </Stack.Group>
     </Stack.Navigator>

@@ -19,6 +19,4 @@ const UploadImage = async (user, filePath) => {
     }
 }
 
-
-
 export { UploadImage }

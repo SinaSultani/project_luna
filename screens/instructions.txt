@@ -1,0 +1,9 @@
+Create a "friend requests" collection in your Firestore database with fields such as "from", "to", and "status" (e.g. "pending", "accepted", "declined").
+
+In your React Native app, when the "add friend" button is pressed, create a new document in the "friend requests" collection with the "from" field set to the current user's id and the "to" field set to the other user's id.
+
+When the other user logs in, retrieve all friend requests where the "to" field is set to their id and display the requests in a list.
+
+When the other user receives a friend request, they can either accept or decline the request.
+
+If the other user accepts the request, add both the current user and the other user to eachothers friends

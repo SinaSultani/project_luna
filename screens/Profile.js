@@ -4,24 +4,17 @@ import {
     Text,
     View,
     Image,
-    TouchableOpacity
 } from 'react-native';
-import { TextInput, Button, Paragraph, Dialog, Portal } from 'react-native-paper';
+import { Button } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import getAuth from '@react-native-firebase/auth';
-import auth from '@react-native-firebase/auth';
-// import SignIn from "./SignIn";
 import { UserContext } from "../context/UserProvider";
 import { firestore } from "../firebase";
-import { useNavigation } from '@react-navigation/native';
-import { DownloadUserImage } from '../context/UserProvider';
 import Loader from "./Loader";
 
 const Profile = ({ navigation, route }) => {
-    const [newUrl, setNewUrl] = useState("");
     const [url, setUrl] = useState('');
-    const { user, loadingName, DownloadUserImage, logoutUser } = useContext(UserContext);
-    console.log("user in profile: ", user)
+    const [dbUser, setDbUser] = useState('');
+    const { user, loadingName, logoutUser } = useContext(UserContext);
     useEffect(async () => {
         if (user) {
             setUrl(user.photoURL)
@@ -29,9 +22,10 @@ const Profile = ({ navigation, route }) => {
     }, [url])
 
     useEffect(async () => {
-        const dbUser = await firestore().collection("users").doc(user.uid).get();
-        // console.log("dbUser in profile: ", dbUser)
-    }, [])
+        if (user) {
+            setDbUser(await firestore().collection("users").doc(user.uid).get());
+        }
+    }, [dbUser])
 
     const ToEdit = () => {
         try {
@@ -41,20 +35,20 @@ const Profile = ({ navigation, route }) => {
             alert(err.message)
         }
     }
-    // if (!url) { return <Loader /> }
+    if (!url) { return <Loader /> }
+    if (!dbUser) { return <Loader /> }
     return (
         <>
             <SafeAreaView>
                 <View style={styles.container}>
                     <View style={styles.header}></View>
-                    <Image style={styles.avatar} source={{ uri: url }} />
-
+                    <Image style={styles.avatar} source={{ uri: user?.photoURL }} />
                     <View style={styles.body}>
-                        <View>
+                        <View style={styles.bodyContent}>
                             <Text style={styles.name}>{user?.email}</Text>
                             <Text style={styles.name}>{user?.displayName || loadingName}</Text>
-                            <Text style={styles.info}>UX Designer / Mobile developer</Text>
-                            <Text style={styles.description}>Lorem ipsum dolor sit amet, saepe sapientem eu nam. Qui ne assum electram expetendis, omittam deseruisse consequuntur ius an,</Text>
+                            <Text style={styles.info}>{dbUser._data.occupation}</Text>
+                            <Text style={styles.description}>{dbUser._data.biography}</Text>
                             <Button style={styles.buttonContainer}
                                 onPress={() => ToEdit()}>
                                 Edit Profile
@@ -74,7 +68,7 @@ const Profile = ({ navigation, route }) => {
 
 const styles = StyleSheet.create({
     header: {
-        backgroundColor: "#00BFFF",
+        backgroundColor: "#398378",
         height: 200,
     },
     avatar: {
@@ -99,9 +93,10 @@ const styles = StyleSheet.create({
     },
     body: {
         marginTop: 40,
+        alignItems: 'center',
+        justifyContent: 'center'
     },
     bodyContent: {
-        flex: 1,
         alignItems: 'center',
         padding: 30,
         justifyContent: 'center'
@@ -113,7 +108,7 @@ const styles = StyleSheet.create({
     },
     info: {
         fontSize: 16,
-        color: "#00BFFF",
+        color: "#398378",
         marginTop: 10,
         textAlign: 'center'
     },
@@ -126,13 +121,14 @@ const styles = StyleSheet.create({
     buttonContainer: {
         marginTop: 10,
         height: 45,
+        color: "white",
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: 20,
         width: 250,
         borderRadius: 30,
-        backgroundColor: "#00BFFF",
+        backgroundColor: "#398378",
     },
 });
 
