@@ -2,6 +2,13 @@ import firebase from '@react-native-firebase/app';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 
+const firebaseConfig = {
+    apiKey: 'AIzaSyAs6C5VQ4XQqkB-avBvr0OoTMz-ltCYLyU',
+    projectId: 'bosi-e158f',
+    storageBucket: 'bosi-e158f.appspot.com',
+    appId: '1:462327531953:ios:3a75e817573c9830439590'
+}
+
 
 
 const sendEmailVerification = async () => {
@@ -27,4 +34,4 @@ const sendEmailVerification = async () => {
     }
 };
 
-export { firebase, auth, firestore }
+export { firebase, auth, firestore, firebaseConfig }

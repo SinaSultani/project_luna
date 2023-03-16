@@ -31,7 +31,7 @@ function UserProvider({ children }) {
         setUser(user);
         if (initializing) setInitializing(false);
     }
-    useEffect(async () => {
+    useEffect(() => {
         if (user) {
             setUrl(user.photoURL)
         }

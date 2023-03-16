@@ -5,7 +5,6 @@
  * @format
  * @flow strict-local
  */
-
 import React, { useContext, useEffect, useState } from 'react';
 import { Node } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -19,7 +18,9 @@ import {
   StyleSheet,
   Image,
   Text,
+  ImageSourcePropType,
   useColorScheme,
+  
   View,
 } from 'react-native';
 import {
@@ -29,7 +30,6 @@ import {
   LearnMoreLinks,
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
-
 //Screens
 import FriendRequestsScreen from './screens/FriendRequests';
 import SignInScreen from './screens/SignIn';
@@ -45,6 +45,8 @@ import AllChatScreen from './screens/AllChats';
 import ChatRoom from './screens/ChatRoom';
 import ChangeProfilePictureScreen from './screens/ChangeProfilePicture';
 import EditProfileScreen from './screens/EditProfile';
+import firebase from '@react-native-firebase/app';
+import { firebaseConfig } from './firebase';
 
 //Components
 import Camera from './components/Camera';
@@ -53,7 +55,7 @@ import Camera from './components/Camera';
 import UserProvider, { UserContext } from "./context/UserProvider";
 
 import { useNavigation } from '@react-navigation/native';
-import { DownloadUserImage } from './context/UserProvider';
+
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -130,6 +132,7 @@ const HomeTabNotAuthed = () => {
 }
 
 const HomeTabAuthed = () => {
+
   const { user, logoutUser, loadingName } = useContext(UserContext);
   const [isLoggedIn, setIsLoggedIn] = useState(true);
   // const [userURL, setUserURL] = useState('https://gravatar.com/avatar/9cbca7bb32eb6d774eb67a0911b9c7cf?s=600&d=robohash&r=x');
@@ -163,7 +166,7 @@ const HomeTabAuthed = () => {
           }
           else if (rn === profileName) {
             if (url) {
-              return <Image style={{ height: 30, width: 30, borderRadius: 63 }} source={{ uri: url }} />
+              return <Image style={{ height: 30, width: 30, borderRadius: 63 }} source={{ uri: url } } />
             }
             else {
               return <Image style={{ height: 30, width: 30, borderRadius: 63 }} source={{ uri: "https://gravatar.com/avatar/9cbca7bb32eb6d774eb67a0911b9c7cf?s=600&d=robohash&r=x" }} />
@@ -387,7 +390,9 @@ const NavigationTheme = {
     notification: 'rgb(255, 69, 58)',
   },
 };
-
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
 const Navigator = ({ navigation }) => {
   const { user, logoutUser, loadingName } = useContext(UserContext);
   if (!user) {
@@ -420,6 +425,7 @@ const Navigator = ({ navigation }) => {
     </Stack.Navigator>
   )
 }
+
 
 const App = ({ navigation }) => {
   const isDarkMode = useColorScheme() === 'dark';
