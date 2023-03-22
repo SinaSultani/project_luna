@@ -11,7 +11,8 @@ const Search = ({ navigation, route, children }) => {
     const [isPendingRequest, setIsPendingRequest] = useState(false);
     const theme = useTheme();
     const currentUserId = firebase.auth().currentUser.uid;
-    useEffect(async () => {
+    useEffect(() => {
+        const getUsersFriends= async () => {
         // Get logged in user friends
         try {
 
@@ -25,6 +26,8 @@ const Search = ({ navigation, route, children }) => {
         } catch (err) {
             console.log(err.message)
         }
+        }
+        getUsersFriends();
     }, []);
     //setLoggedInUserFriends(snapshot.data().friends || []);
     const onChangeSearch = query => {

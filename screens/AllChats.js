@@ -18,27 +18,29 @@ const AllChats = ({ navigation, route }) => {
 
     useEffect(() => {
         const unsubscribe = firebase
-            .firestore()
-            .collection("chatRooms")
-            .where("members", "array-contains", user.uid)
-            .orderBy("createdAt", "desc")
-            .onSnapshot((querySnapshot) => {
-                const updatedChatRooms = [];
-                if (querySnapshot) {
-                    querySnapshot.forEach((doc) => {
-                        console.log("doc.id: ", doc.id)
-                        updatedChatRooms.push({
-                            chatRoomId: doc.id,
-                            name: doc.data().name,
-                            createdAt: doc.data().createdAt,
-                            members: doc.data().members,
-                        });
-                    });
-                    setChatRooms(updatedChatRooms);
-                }
-            });
+          .firestore()
+          .collection("chatRooms")
+          .where("members", "array-contains", firebase.firestore().doc(`users/${user.uid}`))
+          .orderBy("createdAt", "desc")
+          .onSnapshot((querySnapshot) => {
+            const updatedChatRooms = [];
+            if (querySnapshot) {
+              console.log("querySnapshot!: ", querySnapshot)
+              querySnapshot.forEach((doc) => {
+                console.log("doc.id: ", doc.id)
+                updatedChatRooms.push({
+                  chatRoomId: doc.id,
+                  name: doc.data().name,
+                  createdAt: doc.data().createdAt,
+                  members: doc.data().members,
+                });
+              });
+              setChatRooms(updatedChatRooms);
+            }
+          });
         return () => unsubscribe();
-    }, []);
+      }, []);
+      
 
     async function GetFriends() {
         if (user) {

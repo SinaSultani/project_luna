@@ -24,7 +24,7 @@ const ChatRoom = ({ navigation, route }) => {
       .orderBy('createdAt', 'asc')
       .onSnapshot((snapshot) => {
         let messages = snapshot.docs.map((doc) => doc.data());
-        console.log("Messages: ", messages)
+        //console.log("Messages: ", messages)
         setMessages(messages.sort((m1, m2) => m1.createdAt.seconds - m2.createdAt.seconds));
       });
     return () => unsubscribe();
@@ -39,17 +39,21 @@ const ChatRoom = ({ navigation, route }) => {
         .onSnapshot((snapshot) => {
           const chatRoomData = snapshot.data();
           const members = chatRoomData.members;
-
+          console.log("members: ", members)
           Promise.all(
-            members.map(async (memberId) => {
-              const downloadUrl = await storage().ref(memberId).getDownloadURL();
-              return { memberId, downloadUrl };
+            members.map(async (memberRef) => {
+              console.log("memberRef: ", memberRef)
+              const memberDoc = await memberRef.get();
+              const downloadUrl = await storage().ref(memberDoc.id).getDownloadURL();
+              return { memberId: memberDoc.id, downloadUrl: downloadUrl, displayName: memberDoc.data().displayName };
             })
           )
             .then(profileInfo => {
               setProfileInfo(profileInfo);
             });
         });
+
+
     } catch (err) {
       console.log(err.message)
     }
@@ -125,6 +129,8 @@ const ChatRoom = ({ navigation, route }) => {
 
           const senderInfo = profileInfo.find(info => info.memberId === item.id)
           const senderImage = senderInfo?.downloadUrl || '';
+          const senderName = senderInfo?.displayName || '';
+          console.log("profileInfo: ", profileInfo)
 
           if (!senderImage) {
             return (
@@ -137,23 +143,29 @@ const ChatRoom = ({ navigation, route }) => {
           if (item.sender === currentUser) {
             return (
               <View style={styles.rightMessageContainer}>
-                <View style={styles.textContainer}>
-                  {item.media ?
+
+                <View style={styles.contentContainer}>
+                  <Text style={styles.senderName}>{senderName}</Text>
+                  {item.media ? (
                     <View>
                       <Image style={styles.image} source={{ uri: item.media }} />
                       <Text>{item.text}</Text>
-                    </View> :
+                    </View>
+                  ) : (
                     <Text>{item.text}</Text>
-                  }
+                  )}
                   <Text style={styles.time}>{formattedTime}</Text>
                 </View>
                 <Image style={styles.profileImage} source={{ uri: senderImage }} />
               </View>
+
             );
           } else {
             return (
               <View style={styles.leftMessageContainer}>
-                <View style={styles.textContainer}>
+                <Image style={styles.profileImage} source={{ uri: senderImage }} />
+                <View style={styles.contentContainer}>
+                  <Text style={styles.senderName}>{senderName}</Text>
                   {item.media ?
                     <View>
                       <Image style={styles.image} source={{ uri: item.media }} />
@@ -163,32 +175,23 @@ const ChatRoom = ({ navigation, route }) => {
                   }
                   <Text style={styles.time}>{formattedTime}</Text>
                 </View>
-                <Image style={styles.profileImage} source={{ uri: senderImage }} />
               </View>
             );
           }
         }}
         keyExtractor={(item) => item.createdAt.toString()}
       />
-      <View style={styles.inputContainer}>
-        {image && (
-
+      {image && (
+        <View style={styles.inputContainer}>
           <Image style={styles.imageInInput} source={{ uri: image }} />
-        )}
-      </View>
+        </View>
+      )}
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
           value={text}
           onChangeText={setText}
         />
-
-        <TextInput
-          style={styles.input}
-          value={text}
-          onChangeText={setText}
-        />
-
         <TouchableOpacity onPress={handleOpenAttachment}>
           <MaterialIcons name="image" style={styles.attachmentIcon} />
         </TouchableOpacity>
@@ -204,73 +207,80 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  time: {
-    fontSize: 10,
-    color: "#999999",
-    alignSelf: "flex-start",
-    marginBottom: 3,
+  rightMessageContainer: {
+    alignSelf: 'flex-end',
+    backgroundColor: '#DCF8C5',
+    borderRadius: 20,
+    marginRight: 10,
+    marginBottom: 10,
+    padding: 10,
+    maxWidth: '80%',
+    flexDirection: 'row',
   },
-  textContainer: {
+  leftMessageContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  profileImage: {
-    width: 35,
-    height: 35,
-    borderRadius: 20,
+    marginVertical: 10,
+    marginRight: 50,
     marginLeft: 10,
-    marginBottom: 10
+  },
+  contentContainer: {
+    maxWidth: '70%',
+    backgroundColor: '#FFF',
+    borderRadius: 10,
+    padding: 10,
   },
   image: {
     width: 200,
     height: 200,
-    alignSelf: 'center',
+    resizeMode: 'cover',
     marginVertical: 10,
-    borderRadius: 10,
   },
-  imageInInput: {
-    width: 100,
-    height: 100,
-    marginVertical: 10,
-    borderRadius: 10,
+  senderName: {
+    fontSize: 12,
+    color: '#888',
   },
-  leftMessageContainer: {
-    padding: 10,
-    margin: 10,
-    backgroundColor: '#ddd',
-    borderRadius: 5,
-    alignSelf: 'flex-start',
-    flexDirection: 'row',
+  profileImage: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    marginRight: 10,
   },
-  rightMessageContainer: {
-    padding: 10,
-    margin: 10,
-    backgroundColor: '#ADD8E6',
-    borderRadius: 5,
-    alignSelf: 'flex-end',
-    flexDirection: 'row',
+  time: {
+    fontSize: 10,
+    color: '#888',
+    marginTop: 5,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 10,
+    backgroundColor: '#FFF',
+    borderWidth: 1,
+    borderColor: '#EEE',
+    padding: 5,
+    margin: 5,
+    borderRadius: 10,
   },
   input: {
     flex: 1,
     padding: 10,
-    backgroundColor: '#fff',
-    borderRadius: 5,
+    fontSize: 16,
   },
-  send: {
-    padding: 10,
-    backgroundColor: 'blue',
-    color: '#fff',
-    borderRadius: 5,
+  imageInInput: {
+    width: 60,
+    height: 60,
+    marginRight: 10,
   },
   attachmentIcon: {
-    fontSize: 24,
-    color: 'blue',
-    marginRight: 10,
+    fontSize: 20,
+    color: '#888',
+    marginHorizontal: 5,
+  },
+  send: {
+    color: '#007AFF',
+    fontWeight: 'bold',
+    fontSize: 16,
+    padding: 10,
   },
 });
 
