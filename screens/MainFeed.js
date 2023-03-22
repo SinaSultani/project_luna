@@ -12,39 +12,64 @@ const MainFeed = () => {
     const [posts, setPosts] = useState([]);
 
     useEffect(() => {
+        const userRef = firebase.firestore().collection("users").doc(currentUserId);
         const fetchPosts = async () => {
-            // Retrieve the friends array from the current user's document
-            const userDoc = await firebase.firestore().collection('users').doc(currentUserId).get();
-            const friendsRefs = userDoc.data().friends;
-            // Get the IDs of the current users friends
-            const friends = await Promise.all(friendsRefs.map(async friendRef => {
-                let friend = await friendRef.get();
-                return friend.id;
-            }));
-            // Query the posts collection for documents with a userId that matches the current user's ID or any of their friends' IDs
-            const postsRef = firebase.firestore().collection('posts');
-            let query = postsRef.where('userId', 'in', [currentUserId, ...friends]).orderBy('createdAt', 'desc');
-            let querySnapshot = await query.get();
-            // Sort the resulting documents in descending order by the "createdAt" field
-            let sortedPosts = querySnapshot.docs.sort((a, b) => b.data().createdAt.seconds - a.data().createdAt.seconds);
+            let postData = [];
+            try {
+                const userDoc = await firebase.firestore().collection('users').doc(currentUserId).get();
+                const friendsRefs = userDoc.data().friends;
+                // Get the document references of the current users friends
+                const friends = await Promise.all(friendsRefs.map(async friendRef => {
+                    try {
+                        let friend = await friendRef.get();
+                        console.log("friend: ", friend.ref)
+                        return friend.ref;
+                    } catch (error) {
+                        console.log(error);
+                        return null;
+                    }
+                }));
+                // Query the posts collection for documents with a userId that matches the current user's reference or any of their friends' references
+                const postsRef = firebase.firestore().collection('posts');
+                let query = postsRef.where('userId', 'in', [userRef, ...friends]).orderBy('createdAt', 'desc');
+                let querySnapshot = await query.get();
+                // Sort the resulting documents in descending order by the "createdAt" field
+                let sortedPosts = querySnapshot.docs.sort((a, b) => b.data().createdAt.seconds - a.data().createdAt.seconds);
 
-            // Retrieve the displayName and profileImg for each post's user
-            let postData = await Promise.all(sortedPosts.map(async post => {
-                let user = await firebase.firestore().collection('users').doc(post.data().userId).get();
-                return {
-                    ...post.data(),
-                    id: post.id,
-                    displayName: user.data().displayName,
-                    profileImg: user.data().profileImg
-                };
-            }));
+                // Retrieve the displayName and profileImg for each post's user and each friend's profileImg
+                postData = await Promise.all(sortedPosts.map(async post => {
+                    let userRef = post.data().userId;
+                    let user = await userRef.get();
+                    let profileImg;
+                    if (friendsRefs.includes(userRef) || userRef) {
+                        // If the user is a friend, get their profileImg from Firebase Storage
+                        const memberDoc = userRef;
+                        const downloadUrl = await storage().ref(memberDoc.id).getDownloadURL();
+                        profileImg = downloadUrl;
+                    } else {
+                        // Otherwise, use the user's profileImg from Firestore
+                        profileImg = user.data().profileImg;
+                    }
+                    return {
+                        ...post.data(),
+                        id: post.id,
+                        displayName: user.data().displayName,
+                        profileImg: profileImg
+                    };
+                }));
+            } catch (error) {
+                console.log(error.message);
+            }
             setPosts(postData);
         };
 
         fetchPosts();
     }, []);
 
+
+
     const handlePost = async () => {
+        const userRef = firebase.firestore().collection("users").doc(currentUserId);
         if (image) {
             const imageFileName = image.split("/").pop();
             const ref = storage().ref().child(`posts/${currentUserId}/${imageFileName}`);
@@ -55,7 +80,7 @@ const MainFeed = () => {
                 .collection('posts')
                 .add({
                     text,
-                    userId: currentUserId,
+                    userId: userRef,
                     createdAt: new Date(),
                     media: url
                 });
@@ -66,7 +91,7 @@ const MainFeed = () => {
                 .collection('posts')
                 .add({
                     text,
-                    userId: currentUserId,
+                    userId: userRef,
                     createdAt: new Date(),
                 });
         }

@@ -15,16 +15,19 @@ const Profile = ({ navigation, route }) => {
     const [url, setUrl] = useState('');
     const [dbUser, setDbUser] = useState('');
     const { user, loadingName, logoutUser } = useContext(UserContext);
-    useEffect(async () => {
+    useEffect( () => {
         if (user) {
             setUrl(user.photoURL)
         }
     }, [url])
 
-    useEffect(async () => {
-        if (user) {
-            setDbUser(await firestore().collection("users").doc(user.uid).get());
+    useEffect( () => {
+        const setUser = async () => {
+            if (user) {
+                setDbUser(await firestore().collection("users").doc(user.uid).get());
+            }
         }
+        setUser();
     }, [dbUser])
 
     const ToEdit = () => {

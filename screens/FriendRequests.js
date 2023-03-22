@@ -1,50 +1,100 @@
-import React, { useEffect, useState, useContext } from 'react';
-import { Searchbar, useTheme } from 'react-native-paper';
-import { Text, View, Image, TouchableOpacity, StyleSheet, FlatList, Modal } from 'react-native'
-import { firebase } from "../firebase";
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import React, { useContext, useEffect, useState } from 'react';
+import { FlatList, Image, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { UserContext } from "../context/UserProvider";
+import { firebase } from "../firebase";
 const FriendRequest = ({ navigation, children }) => {
     const [friendRequests, setFriendRequests] = useState([]);
+    const [loggedInUserFriends, setLoggedInUserFriends] = useState([]);
+    const [isRequestAnswered, setIsRequestAnswered] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
-    const [selectedFriendRequest, setSelectedFriendRequest] = useState({});
+    const [selectedFriendRequest, setSelectedFriendRequest] = useState('');
     const { user } = useContext(UserContext);
 
     useEffect(() => {
-        const fetchFriendRequests = async () => {
-            const friendRequestSnapshot = await firebase.firestore().collection('friendRequests')
-                .where('requested', '==', user.uid)
-                .get();
-            const friendRequests = await Promise.all(
-                friendRequestSnapshot.docs.map(async friendRequest => {
-                    const requesterId = friendRequest.data().requester;
-                    const userSnapshot = await firebase.firestore().collection('users').doc(requesterId).get();
-                    return userSnapshot.data();
-                })
-            );
-            console.log("friendRequests: ", friendRequests)
-            setFriendRequests(friendRequests);
-        };
-
-        fetchFriendRequests();
+        if (user) {
+            const fetchFriendRequests = async () => {
+                const friendRequestSnapshot = await firebase.firestore().collection('friendRequests')
+                    .where('requested', '==', user.uid)
+                    .where('status', '==', 'pending')
+                    .get();
+                const friendRequests = await Promise.all(
+                    friendRequestSnapshot.docs.map(async friendRequest => {
+                        const requesterId = friendRequest.data().requester;
+                        const userSnapshot = await firebase.firestore().collection('users').doc(requesterId).get();
+                        return { requesterId, userData: userSnapshot.data(), requestId: friendRequest.id };
+                    })
+                );
+                setFriendRequests(friendRequests);
+            };
+            fetchFriendRequests();
+        }
     }, [user]);
-    //setFriendRequests(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-    const acceptFriendRequest = async () => {
-        const requesterId = selectedFriendRequest.requester;
-        const currentUserId = firebase.auth().currentUser.uid;
-        await firebase.firestore().collection('friendRequests')
-            .doc(selectedFriendRequest.id)
-            .update({ status: 'accepted' });
-        await firebase.firestore().collection('friends')
-            .doc(`${requesterId}-${currentUserId}`)
-            .set({ userIds: [requesterId, currentUserId] });
-        setModalVisible(false);
+
+    useEffect(() => {
+        const getUsersFriends = async () => {
+            // Get logged in user friends
+            try {
+                if (user) {
+                    const userDoc = await firebase.firestore().collection('users').doc(user.uid).get();
+                    const friendsRefs = userDoc.data().friends;
+                    // Get the IDs of the current users friends
+                    const friends = await Promise.all(friendsRefs.map(async friendRef => {
+                        const friendDoc = await friendRef.get();
+                        return friendDoc.ref;
+                    }));
+                    setLoggedInUserFriends(friends);
+                }
+            } catch (err) {
+                console.log(err.message)
+            }
+        }
+        getUsersFriends();
+    }, []);
+    
+
+    const acceptFriendRequest = async (userId) => {
+        if (user) {
+            await firebase.firestore().collection('friendRequests')
+                .doc(selectedFriendRequest.requestId)
+                .update({ status: 'accepted' });
+            const otherUserDoc = await firebase.firestore()
+                .collection('users')
+                .doc(userId)
+                .get();
+            const otherUsersFriends = otherUserDoc.data().friends || [];
+            // Create a reference to the current user's document
+            const currentUserRef = firebase.firestore().collection('users').doc(user.uid);
+            const friendsRef = firebase.firestore().collection('users').doc(userId)
+            console.log("loggedInUserFriends.length: ", loggedInUserFriends.length)
+            console.log("otherUsersFriends.length: ", otherUsersFriends.length)
+            const updatedFriendsCurrentUser = loggedInUserFriends.length > 0 ? [...loggedInUserFriends, friendsRef] : [friendsRef];
+            const updatedFriendsOtherUser = otherUsersFriends.length > 0 ? [...otherUsersFriends, currentUserRef] : [currentUserRef];
+            
+            // Add the friend reference to the logged in user's friends array in firestore
+            firebase.firestore()
+                .collection('users')
+                .doc(user.uid)
+                .update({
+                    friends: updatedFriendsCurrentUser,
+                });
+            //   Update the other user's friends array
+            firebase.firestore()
+                .collection('users')
+                .doc(userId)
+                .update({
+                    friends: updatedFriendsOtherUser,
+                });
+            setFriendRequests(friendRequests.filter(request => request.requesterId !== selectedFriendRequest.requesterId));
+            setIsRequestAnswered(true);
+            setModalVisible(false);    
+        }
     };
 
     const declineFriendRequest = async () => {
         await firebase.firestore().collection('friendRequests')
-            .doc(selectedFriendRequest.id)
+            .doc(selectedFriendRequest.requestId)
             .update({ status: 'declined' });
+        setIsRequestAnswered(true);
         setModalVisible(false);
     };
 
@@ -58,28 +108,33 @@ const FriendRequest = ({ navigation, children }) => {
                             setSelectedFriendRequest(item);
                             setModalVisible(true);
                         }} style={styles.friendRequestContainer}>
-                            <Image source={{ uri: item.profileImg }} style={styles.friendRequestAvatar} />
+                            <Image source={{ uri: item.userData.profileImg }} style={styles.friendRequestAvatar} />
                             <View>
-                                <Text style={styles.friendRequestName}>{item.displayName}</Text>
+                                <Text style={styles.friendRequestName}>{item.userData.displayName}</Text>
                                 <Text style={styles.friendRequestStatus}>Pending request</Text>
                             </View>
                         </TouchableOpacity>
                     );
                 }}
-                keyExtractor={item => item.email}
+                keyExtractor={item => item.requesterId}
             />
             <Modal visible={modalVisible}>
                 <View style={styles.modalContainer}>
-                    <Image source={{ uri: selectedFriendRequest.profileImg }} style={styles.modalAvatar} />
-                    <Text style={styles.modalName}>{selectedFriendRequest.displayName}</Text>
-                    <View style={styles.modalActionContainer}>
-                        <TouchableOpacity onPress={acceptFriendRequest} style={styles.modalActionButton}>
-                            <Text style={styles.modalActionButtonText}>Accept</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={declineFriendRequest} style={styles.modalActionButton}>
-                            <Text style={styles.modalActionButtonText}>Decline</Text>
-                        </TouchableOpacity>
-                    </View>
+                    {selectedFriendRequest && (
+                        <>
+                            <Image source={{ uri: selectedFriendRequest.userData.profileImg }} style={styles.modalAvatar} />
+                            <Text style={styles.modalName}>{selectedFriendRequest.userData.displayName}</Text>
+
+                            <View style={styles.modalActionContainer}>
+                                <TouchableOpacity onPress={() => acceptFriendRequest(selectedFriendRequest.requesterId)} style={styles.modalActionButton}>
+                                    <Text style={styles.modalActionButtonText}>Accept</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => declineFriendRequest(selectedFriendRequest.requesterId)} style={styles.modalActionButton}>
+                                    <Text style={styles.modalActionButtonText}>Decline</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </>
+                    )}
                 </View>
             </Modal>
         </View>

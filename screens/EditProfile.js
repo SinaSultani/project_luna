@@ -43,7 +43,7 @@ const EditProfile = ({ route, navigation }) => {
     const [visible, setVisible] = useState(false);
     const [url, setUrl] = useState('');
 
-    useEffect(async () => {
+    useEffect(() => {
         if (user) {
             setUrl(user.photoURL)
         }
