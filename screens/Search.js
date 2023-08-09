@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Searchbar, useTheme } from 'react-native-paper';
 import { Text, View, Image, TouchableOpacity } from 'react-native'
 import { firebase } from "../firebase";
@@ -9,20 +9,23 @@ const Search = ({ navigation, route, children }) => {
     const [loggedInUserFriends, setLoggedInUserFriends] = useState([]);
     const [isRequestSent, setIsRequestSent] = useState(false);
     const [isPendingRequest, setIsPendingRequest] = useState(false);
-    const theme = useTheme();
+    const searchQueryRef = useRef('');
+
     const currentUserId = firebase.auth().currentUser.uid;
+
+
     useEffect(() => {
         const getUsersFriends= async () => {
         // Get logged in user friends
         try {
-
-            const userDoc = await firebase.firestore().collection('users').doc(currentUserId).get();
-            const friendsRefs = userDoc.data().friends;
-            // Get the IDs of the current users friends
-            await Promise.all(friendsRefs.map(async friendRef => {
-                let friend = await friendRef.get();
-                setLoggedInUserFriends(friend.id);
-            }));
+                const userDoc = await firebase.firestore().collection('users').doc(currentUserId).get();
+                const friendsRefs = userDoc.data().friends;
+                // Get the IDs of the current users friends
+                const friends = await Promise.all(friendsRefs.map(async friendRef => {
+                    const friendDoc = await friendRef.get();
+                    return friendDoc.id;
+                }));
+                setLoggedInUserFriends(friends);
         } catch (err) {
             console.log(err.message)
         }
@@ -31,10 +34,16 @@ const Search = ({ navigation, route, children }) => {
     }, []);
     //setLoggedInUserFriends(snapshot.data().friends || []);
     const onChangeSearch = query => {
+        searchQueryRef.current = query;
         setSearchQuery(query);
     };
-    const searchUser = (query) => {
+    const searchUser = () => {
         // // Get search results from firestore
+        setSearchResults([]);
+        const query = searchQueryRef.current;
+        if (query.trim() === '') {
+          return;
+        }
         firebase.firestore()
             .collection('users')
             .where('displayName', '==', query)
@@ -46,27 +55,26 @@ const Search = ({ navigation, route, children }) => {
                         .where('requested', '==', doc.id)
                         .get()
                         .then(snapshotRequester => {
+                            snapshotRequester.docs.forEach(request => {
+                                const status = request.data().status;
+                                console.log("Request 1: ", request.data())
+                                if(status === "pending") {
+                                    setIsRequestSent(true);
+                                }
+                            })
                             firebase.firestore().collection('friendRequests')
                                 .where('requester', '==', doc.id)
                                 .where('requested', '==', currentUserId)
                                 .get()
                                 .then(snapshotRequested => {
-                                    if (!snapshotRequester.empty) {
-                                        setIsRequestSent(true);
-                                    } else if (!snapshotRequested.empty) {
+                                snapshotRequested.docs.forEach(request => {
+                                    const status = request.data().status;
+                                    console.log("Request 2: ", request.data())
+                                    if(status === "pending") {
                                         setIsPendingRequest(true);
-                                    } else {
-                                        setIsRequestSent(false);
-                                        setIsPendingRequest(false);
                                     }
                                 })
-                            // console.log("NW SnaP: ", snapshot);
-                            // console.log("snapshot.empty: ", snapshot.empty)
-                            // if (!snapshot.empty) {
-                            //     setIsRequestSent(true);
-                            // } else {
-                            //     setIsRequestSent(false);
-                            // }
+                                })
                         });
                 });
 
@@ -89,69 +97,6 @@ const Search = ({ navigation, route, children }) => {
             })
     }
 
-    const openFriendRequest = async (userId) => {
-
-    }
-
-
-    const acceptRequest = (userId) => {
-        //Approach 1
-        // Get the other user's friends
-        firebase.firestore()
-            .collection('users')
-            .doc(userId)
-            .get()
-            .then(snapshot => {
-                const otherUsersFriends = snapshot.data().friends || [];
-                // Create a reference to the current user's document
-                const currentUserRef = firebase.firestore().collection('users').doc(currentUserId);
-                // Add the friend reference to the logged in user's friends array in firestore
-                firebase.firestore()
-                    .collection('users')
-                    .doc(currentUserId)
-                    .update({
-                        friends: [...loggedInUserFriends, currentUserRef],
-                    });
-                // Update the other user's friends array
-                firebase.firestore()
-                    .collection('users')
-                    .doc(userId)
-                    .update({
-                        friends: [...otherUsersFriends, currentUserRef],
-                    });
-            });
-
-        //Approach 2
-        // firebase.firestore().batch().update(
-        //     firebase.firestore().collection('users').doc(currentUserId),
-        //     { friends: [...loggedInUserFriends, userId] }
-        //   ).update(
-        //     firebase.firestore().collection('users').doc(userId),
-        //     { friends: [...otherUserFriends, currentUserId] }
-        //   ).commit()
-        //     .then(() => {
-        //       console.log('Friends added successfully!');
-        //     })
-        //     .catch(error => {
-        //       console.error('Error adding friends: ', error);
-        //     });
-    };
-
-    const declineRequest = async (userId) => {
-        firebase.firestore().collection('friendRequests')
-            .where('requester', '==', userId)
-            .where('requested', '==', currentUserId)
-            .get()
-            .then(querySnapshot => {
-                querySnapshot.forEach(doc => {
-                    firebase.firestore().collection('friendRequests').doc(doc.id).update({
-                        status: "declined",
-                        ...doc.data()
-                    });
-                });
-            });
-    }
-
     return (
         <>
             <Searchbar
@@ -162,7 +107,6 @@ const Search = ({ navigation, route, children }) => {
             />
             {searchResults.length > 0 ? (
                 searchResults.map(user => (
-
                     <User
                         key={user.id}
                         user={user}
@@ -181,7 +125,7 @@ const Search = ({ navigation, route, children }) => {
 
 const User = ({ user, isFriend, sendFriendRequest, isRequestSent, isPendingRequest }) => {
     console.log("ISFRIEND: ", isFriend)
-    const [requestSent, setRequestSent] = useState(false);
+    console.log("user: ", user)
     return (
         <View style={{ flexDirection: 'row', alignItems: 'center', padding: 20 }}>
             <Image source={{ uri: user.profileImg }} style={{ width: 50, height: 50, borderRadius: 20 }} />

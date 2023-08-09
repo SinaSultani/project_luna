@@ -10,25 +10,15 @@ import { Node } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import { Platform, TouchableOpacity } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
   StyleSheet,
-  Image,
-  Text,
-  ImageSourcePropType,
   useColorScheme,
-  
   View,
 } from 'react-native';
 import {
   Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
 //Screens
 import FriendRequestsScreen from './screens/FriendRequests';
@@ -44,6 +34,7 @@ import ProfileScreen from './screens/Profile';
 import AllChatScreen from './screens/AllChats';
 import ChatRoom from './screens/ChatRoom';
 import ChangeProfilePictureScreen from './screens/ChangeProfilePicture';
+import AddScreen from './screens/AddScreen';
 import EditProfileScreen from './screens/EditProfile';
 import firebase from '@react-native-firebase/app';
 import { firebaseConfig } from './firebase';
@@ -55,6 +46,7 @@ import Camera from './components/Camera';
 import UserProvider, { UserContext } from "./context/UserProvider";
 
 import { useNavigation } from '@react-navigation/native';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 
 const Tab = createBottomTabNavigator();
@@ -88,16 +80,21 @@ const mainFeedName = 'MainFeed';
 const profileName = 'Profile';
 const chatName = 'Chat';
 
+
+const tabBarHeight = Platform.OS === 'android' ? 45 : 60;
+const paddingTopScaled = Platform.OS === 'ios' ? 40 : 20;
+
+
 const HomeTabNotAuthed = () => {
   const { user, logoutUser, loadingName } = useContext(UserContext);
-
   return (
+    <SafeAreaProvider style={{flex: 1}}>
     <Tab.Navigator
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
           let rn = route.name;
-
+          
           if (rn === signInName) {
             iconName = 'home';
           }
@@ -107,12 +104,12 @@ const HomeTabNotAuthed = () => {
           else if (rn === termsName) {
             iconName = 'book';
           }
-          return <MaterialIcons name={iconName} size={20} color={color} />;
+          return <MaterialIcons name={iconName} size={24} color={color} style={{ paddingBottom: paddingTopScaled }} />;
         },
-        "tabBarActiveTintColor": '#398378',
-        "tabBarInactiveTintColor": 'grey',
-        "tabBarLabelStyle": { "paddingBottom": 10, "fontSize": 10 },
-        "tabBarStyle": { "padding": 10, "height": 70 }
+        tabBarActiveTintColor: '#398378',
+        tabBarInactiveTintColor: 'grey',
+        tabBarLabelStyle: { fontSize: 12, paddingBottom: 5 },
+        tabBarStyle: { height: tabBarHeight, paddingTop: 15},
       })}
     >
       <Tab.Screen
@@ -128,6 +125,7 @@ const HomeTabNotAuthed = () => {
         options={{ headerShown: false }}
         component={TermsStackScreen} />
     </Tab.Navigator>
+    </SafeAreaProvider>
   )
 }
 
@@ -142,8 +140,8 @@ const HomeTabAuthed = () => {
       setUrl(user.photoURL)
     }
   }, [url])
-  // console.log("url in app: ", url)
   return (
+    <SafeAreaProvider style={{flex: 1}}>
     <Tab.Navigator
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
@@ -154,57 +152,60 @@ const HomeTabAuthed = () => {
           }
           else if (rn === chatName) {
             iconName = 'chat';
+            return <MaterialIcons name={iconName} size={26} color={color} style={{ marginLeft: 40 }} />
           }
           else if (rn === feedName) {
-            iconName = 'article';
+            iconName = 'home';
           }
           else if (rn === searchName) {
             iconName = 'search';
+            return <MaterialIcons name={iconName} size={26} color={color} style={{ marginRight: 40 }} />
           }
           else if (rn === settingsName) {
             iconName = 'settings';
           }
           else if (rn === profileName) {
-            if (url) {
-              return <Image style={{ height: 30, width: 30, borderRadius: 63 }} source={{ uri: url } } />
-            }
-            else {
-              return <Image style={{ height: 30, width: 30, borderRadius: 63 }} source={{ uri: "https://gravatar.com/avatar/9cbca7bb32eb6d774eb67a0911b9c7cf?s=600&d=robohash&r=x" }} />
-            }
+            iconName = 'person'
           }
-          return <MaterialIcons name={iconName} size={20} color={color} />
+          return <MaterialIcons name={iconName} size={26} color={color}  />;
         },
-        "tabBarActiveTintColor": '#398378',
-        "tabBarInactiveTintColor": 'grey',
-        "tabBarLabelStyle": { "paddingBottom": 10, "fontSize": 10 },
-        "tabBarStyle": { "padding": 10, "height": 55 }
-      })}
+
+        tabBarActiveTintColor: '#FF5722',
+        tabBarInactiveTintColor: '#9E9E9E',
+        tabBarStyle: { height: tabBarHeight, paddingBottom: 0, backgroundColor: 'white', elevation: 2},
+        tabBarLabel: '',
+      })
+    }
     >
       <Tab.Screen
         name={feedName}
         options={{ headerShown: false }}
         component={FeedStackScreen} />
-      <Tab.Screen
-        name={friendsName}
-        options={{ headerShown: false }}
-        component={FriendRequestsStackScreen} />
-      <Tab.Screen
-        name={chatName}
-        options={{ headerShown: false }}
-        component={ChatStackScreen} />
-      <Tab.Screen
+              <Tab.Screen
         name={searchName}
         options={{ headerShown: false }}
         component={SearchStackScreen} />
       <Tab.Screen
-        name={settingsName}
-        options={{ headerShown: false }}
-        component={SettingsStackScreen} />
+        name={chatName}
+        options={{ headerShown: false}}
+        component={ChatStackScreen} />
       <Tab.Screen
         name={profileName}
-        options={{ headerShown: false }}
+        options={{ headerShown: false}}
         component={ProfileStackScreen} />
+        <Tab.Screen
+          name="Add"
+          component={AddScreen}
+          options={{
+            tabBarButton: ({ onPress, accessibilityLabel }) => (
+              <TouchableOpacity style={styles.addButton}>
+              <MaterialIcons name="add" size={24} color="#fff"/>
+            </TouchableOpacity>
+            ),
+          }}
+        />
     </Tab.Navigator >
+    </SafeAreaProvider>
   )
 }
 
@@ -286,7 +287,7 @@ function ChatStackScreen() {
     <ChatStack.Navigator>
       <ChatStack.Screen
         name="All Chats"
-        options={{ headerShown: false, }}
+        options={{ headerShown: false }}
         component={AllChatScreen}
       />
       <ChatStack.Screen
@@ -302,7 +303,7 @@ function ProfileStackScreen() {
     <ProfileStack.Navigator>
       <ProfileStack.Screen
         name="The Profile"
-        options={{ headerShown: false, }}
+        options={{ headerShown: false }}
         component={ProfileScreen} />
     </ProfileStack.Navigator>
   )
@@ -351,32 +352,6 @@ function RegisterStackScreen() {
     </RegisterStack.Navigator>
   )
 }
-
-// const Section = ({ children, title }) => {
-//   const isDarkMode = useColorScheme() === 'dark';
-//   return (
-//     <View style={styles.sectionContainer}>
-//       <Text
-//         style={[
-//           styles.sectionTitle,
-//           {
-//             color: isDarkMode ? Colors.white : Colors.black,
-//           },
-//         ]}>
-//         {title}
-//       </Text>
-//       <Text
-//         style={[
-//           styles.sectionDescription,
-//           {
-//             color: isDarkMode ? Colors.light : Colors.dark,
-//           },
-//         ]}>
-//         {children}
-//       </Text>
-//     </View>
-//   );
-// };
 
 const NavigationTheme = {
   ...DefaultTheme,
@@ -429,35 +404,46 @@ const Navigator = ({ navigation }) => {
 
 const App = ({ navigation }) => {
   const isDarkMode = useColorScheme() === 'dark';
+  // const backgroundStyle = {
+  //   backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  // };
   const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+    backgroundColor: 'red', // Change this to the desired background color
   };
 
   return (
     <NavigationContainer theme={NavigationTheme}>
       <UserProvider>
+        <View style={[styles.droidSafeArea, backgroundStyle]}>
         <Navigator />
+        </View>
       </UserProvider>
     </NavigationContainer>
   );
 };
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  droidSafeArea: {
+    flex: 1,
+    backgroundColor: "blue",
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
+  addButton: {
+    position: 'absolute',
+    marginTop: -8,
+    left: '50%',
+    marginLeft: -25,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 45,
+    height: 45,
+    borderRadius: 25,
+    backgroundColor: '#FF5722',
+    opacity: 0.8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.4,
+    shadowRadius: 3,
+    elevation: 5,
   },
 });
 
